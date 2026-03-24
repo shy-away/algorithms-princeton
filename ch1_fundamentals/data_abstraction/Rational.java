@@ -56,20 +56,41 @@ public class Rational {
    * @return new Rational sum
    */
   public Rational plus(Rational b) {
-    long lcd = lcd(this.getDenominator(), b.getDenominator());
+    long newDenominator = lcd(this.getDenominator(), b.getDenominator());
 
     // determine conversion multiplier for each Rational
-    long conversionThis = lcd / this.getDenominator();
-    long conversionThat = lcd / b.getDenominator();
+    long conversionThis = newDenominator / this.getDenominator();
+    long conversionThat = newDenominator / b.getDenominator();
 
     // multiply and add numerators
-    // TODO: check for overflow
     long numeratorThis = this.getNumerator() * conversionThis;
     long numeratorThat = b.getNumerator() * conversionThat;
     long newNumerator = numeratorThis + numeratorThat;
 
-    // return new Rational (constructor attempts to reduce)
-    return new Rational((int) newNumerator, (int) lcd);
+    // check numerator overflow
+    if (newNumerator > Integer.MAX_VALUE) {
+      throw new ArithmeticException("Numerator overflow");
+    }
+
+    if (newNumerator < Integer.MIN_VALUE) {
+      throw new ArithmeticException("Numerator underflow");
+    }
+
+    // check denominator overflow
+    if (newDenominator > Integer.MAX_VALUE) {
+      // attempt to reduce
+      long gcd = gcd(newNumerator, newDenominator);
+      if (gcd > 1) {
+        newNumerator /= gcd;
+        newDenominator /= gcd;
+      }
+      if (newDenominator > Integer.MAX_VALUE) {
+        throw new ArithmeticException("Denominator overflow");
+      }
+    }
+
+    // return new Rational
+    return new Rational((int) newNumerator, (int) newDenominator);
   }
 
   /**
@@ -79,19 +100,8 @@ public class Rational {
    * @return new Rational result
    */
   public Rational minus(Rational b) {
-    long lcd = lcd(this.getDenominator(), b.getDenominator());
-
-    // determine conversion multiplier for each Rational
-    long conversionThis = lcd / this.getDenominator();
-    long conversionThat = lcd / b.getDenominator();
-
-    // multiply and subtract numerators
-    // TODO: check for overflow
-    long numeratorThis = this.getNumerator() * conversionThis;
-    long numeratorThat = b.getNumerator() * conversionThat;
-    long newNumerator = numeratorThis - numeratorThat;
-
-    return new Rational((int) newNumerator, (int) lcd);
+    Rational negB = b.times(new Rational(-1, 1));
+    return this.plus(negB);
   }
 
   /**
@@ -101,14 +111,14 @@ public class Rational {
    * @return a new Rational product
    */
   public Rational times(Rational b) {
-    long numeratorThis = this.getNumerator();
-    long denominatorThis = this.getDenominator();
-    long numeratorThat = b.getNumerator();
-    long denominatorThat = b.getDenominator();
+    int numeratorThis = (int) this.getNumerator();
+    int denominatorThis = (int) this.getDenominator();
+    int numeratorThat = (int) b.getNumerator();
+    int denominatorThat = (int) b.getDenominator();
 
     // cross-check fractions
-    long gcd1 = gcd(numeratorThis, denominatorThat);
-    long gcd2 = gcd(denominatorThis, numeratorThat);
+    int gcd1 = (int) gcd(numeratorThis, denominatorThat);
+    int gcd2 = (int) gcd(denominatorThis, numeratorThat);
 
     if (gcd1 > 1) {
       numeratorThis /= gcd1;
@@ -121,11 +131,10 @@ public class Rational {
     }
 
     // multiply simplified numerators and denominators
-    // TODO: check for overflow
-    long newNumerator = numeratorThis * numeratorThat;
-    long newDenominator = denominatorThis * denominatorThat;
+    int newNumerator = Math.multiplyExact(numeratorThis, numeratorThat);
+    int newDenominator = Math.multiplyExact(denominatorThis, denominatorThat);
 
-    return new Rational((int) newNumerator, (int) newDenominator);
+    return new Rational(newNumerator, newDenominator);
   }
 
   /**
@@ -156,7 +165,7 @@ public class Rational {
   }
 
   /**
-   * Get String version of this Rational.
+   * Get String version of this Rational, in the form "{@code n / d}".
    */
   public String toString() {
     return getNumerator() + " / " + getDenominator();
@@ -166,38 +175,87 @@ public class Rational {
     // constructor and equals
     Rational a = new Rational(4, 5);
     Rational b = new Rational(4, 5);
-
     assert a.equals(b) : "Equals";
 
     b = new Rational(8, 10);
-
     assert a.equals(b) : "Reducing on construction";
 
     // addition
     Rational c = a.plus(b);
-
     assert c.equals(new Rational(8, 5)) : "Addition, same denominators";
 
     a = new Rational(3, 7);
     b = new Rational(2, 6);
-
     c = a.plus(b);
-
     assert c.equals(new Rational(32, 42)) : "Addition, different denominators";
 
     // subtraction
     c = a.minus(b);
-
     assert c.equals(new Rational(4, 42)) : "Subtraction";
 
     // multiplication
     c = a.times(b);
-
     assert c.equals(new Rational(1, 7)) : "Multiplication";
 
     // division
     c = a.divides(b);
-
     assert c.equals(new Rational(9, 7)) : "Division";
+
+    // --- OVERFLOW/UNDERFLOW ---
+
+    // addition, numerator overflow
+    a = new Rational(Integer.MAX_VALUE, 3);
+    b = new Rational(Integer.MAX_VALUE, 3);
+    boolean hasErred = false;
+    try {
+      c = a.plus(b);
+    } catch (Exception e) {
+      hasErred = true;
+    }
+    assert hasErred : "Addition numerator overflow should cause error";
+
+    // addition, denominator overflow
+    a = new Rational(1, 46337);
+    b = new Rational(1, 46349);
+    hasErred = false;
+    try {
+      c = a.plus(b);
+    } catch (Exception e) {
+      hasErred = true;
+    }
+    assert hasErred : "Addition denominator overflow should cause error";
+
+    // multiplication, numerator overflow
+    a = new Rational(Integer.MAX_VALUE, 1);
+    b = new Rational(2, 1);
+    hasErred = false;
+    try {
+      c = a.times(b);
+    } catch (Exception e) {
+      hasErred = true;
+    }
+    assert hasErred : "Multiplication numerator overflow should cause error";
+
+    // multiplication, denominator underflow
+    a = new Rational(1, -46337);
+    b = new Rational(1, -46349);
+    hasErred = false;
+    try {
+      c = a.times(b);
+    } catch (Exception e) {
+      hasErred = true;
+    }
+    assert hasErred : "Multiplication denominator underflow should cause error";
+
+    // subtraction, numerator underflow
+    a = new Rational(Integer.MIN_VALUE, 1);
+    b = new Rational(1, 1);
+    hasErred = false;
+    try {
+      c = a.minus(b);
+    } catch (Exception e) {
+      hasErred = true;
+    }
+    assert hasErred : "Subtraction numerator underflow should cause error";
   }
 }
