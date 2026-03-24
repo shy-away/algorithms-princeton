@@ -11,4 +11,4 @@ javac -cp "$CLASSPATH" "$TARGET"
 
 shift 1
 
-java -cp "$CLASSPATH:$DIR" "$TARGET" "$@"
+java -ea -cp "$CLASSPATH:$DIR" "$TARGET" "$@"
