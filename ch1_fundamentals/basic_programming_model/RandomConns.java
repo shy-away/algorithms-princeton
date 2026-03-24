@@ -1,4 +1,4 @@
-package ch1_fundamentals;
+package ch1_fundamentals.basic_programming_model;
 
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.StdDraw;
