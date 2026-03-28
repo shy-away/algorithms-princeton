@@ -1,5 +1,3 @@
-package queues;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -58,24 +56,32 @@ public class Deque<Item> implements Iterable<Item> {
   }
 
   public Item removeFirst() {
-    if (N == 0)
+    if (isEmpty())
       throw new NoSuchElementException();
 
     Item item = first.item;
     first = first.next;
-    if (first != null) first.prev = null;
+    if (first != null) { 
+      first.prev = null;
+    } else {
+      last = null;
+    }
 
     N--;
     return item;
   }
 
   public Item removeLast() {
-    if (N == 0)
+    if (isEmpty())
       throw new NoSuchElementException();
 
     Item item = last.item;
     last = last.prev;
-    if (last != null) last.next = null;
+    if (last != null) {
+      last.next = null;
+    } else {
+      first = null;
+    }
 
     N--;
     return item;
@@ -143,6 +149,22 @@ public class Deque<Item> implements Iterable<Item> {
     }
     assert hasErred;
 
+    d.addFirst(5);
+    d.removeLast();
+    assert d.isEmpty() && d.size() == 0;
+
+    d.addFirst(5);
+    d.removeFirst();
+    assert d.isEmpty() && d.size() == 0;
+
+    d.addLast(5);
+    d.removeLast();
+    assert d.isEmpty() && d.size() == 0;
+
+    d.addLast(5);
+    d.removeFirst();
+    assert d.isEmpty() && d.size() == 0;
+
     d.addFirst(1);
     d.addFirst(4);
     d.addFirst(22);
@@ -192,5 +214,14 @@ public class Deque<Item> implements Iterable<Item> {
       hasErred = true;
     }
     assert hasErred;
+
+    d.removeFirst();
+    d.removeLast();
+    
+    int i = 0;
+    for (int j : d) {
+      i++;
+    }
+    assert i == d.size();
   }
 }
