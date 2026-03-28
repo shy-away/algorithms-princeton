@@ -26,7 +26,7 @@ The demo script will compile and execute the given Java file, and pass along any
 
 ![Deques and randomized queues.](docs/deques_randomized_queues.png)
 
-This project is about working with arrays and linked lists to create and use abstract data structures. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/queues/specification.php) for more details.
+This project is about working with arrays and linked lists to create and use abstract data structures. My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/queues/specification.php) for more details.
 
 ### [Deque.java](queues/Deque.java)
 
