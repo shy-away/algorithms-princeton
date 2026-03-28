@@ -161,5 +161,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
       }
       System.out.println();
     }
+
+    hasErred = false;
+    try {
+      Iterator<Integer> i = rq2.iterator();
+      while (i.hasNext()) i.next();
+      i.next();
+    } catch (NoSuchElementException e) {
+      hasErred = true;
+    }
+    assert hasErred;
   }
 }
