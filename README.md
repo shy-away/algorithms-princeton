@@ -144,3 +144,29 @@ An ADT (abstract data type) for storing rational numbers. The book outlines an A
 As a bonus, my `Rational` ADT also controls for integer overflow and underflow.
 
 The `main` method of [`Rational.java`](./ch1_fundamentals/data_abstraction/Rational.java) includes assertions to test functionality; see that method for more details. (Using the demo script on `Rational.java` will produce no output, since all assertions pass.)
+
+### Bags, Queues, and Stacks
+
+#### ResizingArrayStack, Stack, Queue, Bag
+
+These were all mostly retyped from the book. I did this to deeply understand their implementations before working up to other exercises, and ultimately the Queues project.
+
+Each of these programs' main methods contains unit tests, some of which produce output (mostly nonsense testing variables).
+
+[ResizingArrayStack.java](ch1_fundamentals/bags_queues_stacks/ResizingArrayStack.java) is implemented using a dynamically resizing array. [Stack.java](ch1_fundamentals/bags_queues_stacks/Stack.java) uses a (singly) linked list, as do [Queue.java](ch1_fundamentals/bags_queues_stacks/Queue.java) and [Bag.java](ch1_fundamentals/bags_queues_stacks/Bag.java).
+
+#### LinkedListGeneric
+
+This class meets many (though not all) of the linked list exercises found in the book. I built this class to better understand how to work with linked lists, again before starting work on the Queues project.
+
+#### Parentheses (and ParenthesesTest)
+
+`Parentheses.java` takes a string of parentheses, braces, and brackets, and using a Stack (from [Stack.java](ch1_fundamentals/bags_queues_stacks/Stack.java)), determines whether it is a valid sequence. `ParenthesesTest.java` was simply for TDD.
+
+```
+$ ./demo.sh ch1_fundamentals/bags_queues_stacks/Parentheses.java "(()"
+false
+
+$ ./demo.sh ch1_fundamentals/bags_queues_stacks/Parentheses.java "[{}({}[])]"
+true
+```
