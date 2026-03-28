@@ -7,8 +7,10 @@ TARGET=$1
 DIR=$(dirname "$TARGET")
 CLASS=$(basename "$TARGET")
 
-javac -cp "$CLASSPATH" "$TARGET"
+javac -cp "$CLASSPATH" "$DIR"/*.java
 
 shift 1
 
 java -ea -cp "$CLASSPATH:$DIR" "$TARGET" "$@"
+
+find $DIR -name "*.class" -type f -delete
