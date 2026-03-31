@@ -68,7 +68,7 @@ was
 
 The booksite provides other test input that I've included. Run `tree queues -P *.txt` to see all options.
 
-**Note:** It is assumed that $ 0 \leq k \leq n $ where _n_ is the number of strings in the input. Violating this will cause a runtime error. For example:
+**Note:** It is assumed that $0 \leq k \leq n$ where _n_ is the number of strings in the input. Violating this will cause a runtime error. For example:
 
 ```
 $ ./demo.sh queues/Permutation.java 100 < queues/permutation4.txt
