@@ -36,13 +36,13 @@ For constant time complexity in all operations (including the iterator's constru
 
 ### [RandomizedQueue.java](queues/RandomizedQueue.java)
 
-A randomized queue is a collection of items that can be randomly retrieved (or simply sampled, without removing them from the queue). Additionally, all iterators of a randomized queue are *distinct*; if two iterators are created from the same randomized queue, they will iterate over the items in *independently* random orders.
+A randomized queue is a collection of items that can be randomly retrieved (or simply sampled, without removing them from the queue). Additionally, all iterators of a randomized queue are _distinct_; if two iterators are created from the same randomized queue, they will iterate over the items in _independently_ random orders.
 
-To accomplish this, `RandomizedQueue.java` uses a dynamically resizing array as its underlying data structure. Resizing operations do consume extra time and memory, but the *amortized* time complexity is still O(1) for all operations besides the iterator constructor, which is O(n).
+To accomplish this, `RandomizedQueue.java` uses a dynamically resizing array as its underlying data structure. Resizing operations do consume extra time and memory, but the _amortized_ time complexity is still O(1) for all operations besides the iterator constructor, which is O(n).
 
 ### [Permutation.java](queues/Permutation.java)
 
-`Permutation.java` is simply a client of `RandomizedQueue.java`. It takes as input *k* and a set of strings, and prints a randomized subset of length *k* of the given strings.
+`Permutation.java` is simply a client of `RandomizedQueue.java`. It takes as input _k_ and a set of strings, and prints a randomized subset of length _k_ of the given strings.
 
 Example usage:
 
@@ -55,7 +55,7 @@ B
 E
 F
 
-$ more queues/tinyTale.txt 
+$ more queues/tinyTale.txt
 it was the best of times it was the worst of times
 
 $ ./demo.sh queues/Permutation.java 5 < queues/tinyTale.txt
@@ -68,7 +68,7 @@ was
 
 The booksite provides other test input that I've included. Run `tree queues -P *.txt` to see all options.
 
-**Note:** It is assumed that $ 0 \leq k \leq n $ where *n* is the number of strings in the input. Violating this will cause a runtime error. For example:
+**Note:** It is assumed that $ 0 \leq k \leq n $ where _n_ is the number of strings in the input. Violating this will cause a runtime error. For example:
 
 ```
 $ ./demo.sh queues/Permutation.java 100 < queues/permutation4.txt
@@ -170,3 +170,96 @@ false
 $ ./demo.sh ch1_fundamentals/bags_queues_stacks/Parentheses.java "[{}({}[])]"
 true
 ```
+
+### Analysis of Algorithms
+
+#### DoublingTest, ThreeSum
+
+These were more or less retyped from the book. `ThreeSum.java` expects a series of integers from stdin, after which it will run a static method `count`, a cubic-time algorithm to find all triples that sum to 0. It also includes a static method `countFast` that works in quadratic + logarithmic time, $O(n^2\lg(n))$. (This is because a binary search is executed $n^2$ times.)
+
+`DoublingTest.java` tests progressively larger (randomly generated) arrays against `countFast`, printing the input size and time elapsed to stdout.
+
+```
+$ ./demo.sh ch1_fundamentals/analysis_of_algorithms/DoublingTest.java
+    250   0.0
+    500   0.0
+   1000   0.0
+   2000   0.1
+   4000   0.3
+   8000   1.1
+  16000   4.4
+  32000  18.4
+```
+
+#### ClosestPair, DoublingRatio (plus Pair, GenerateDoubles)
+
+`ClosestPair.java` takes a series of numbers (Java `double`s) from stdin and using its own static method `findClosestPair`, finds the closest pair of them. Instead of searching every pair, the input is first sorted and then traversed in linear time. Given that Java's `Arrays.sort` is linearithmic, the overall performance of `findClosestPair` is also linearithmic, $O(n\lg(n))$.
+
+The return value of `findClosestPair` is a custom ADT `Pair`, which is a simple pair of two generic variables. I created it just so that I can return two values at once, which Java doesn't natively allow.
+
+`DoublingRatio.java` is a copy of `DoublingTest.java` with modifications: (1) it tests `findClosestPair`, (2) it runs batches of timed trials and calculates an average time, and (3) it calculates the ratio of different problem sizes, printed to a third column.
+
+In this case, since the algorithm in question is linearithmic, doubling the problem size takes slightly more than double the time, on average.
+
+```
+$ ./demo.sh ch1_fundamentals/analysis_of_algorithms/DoublingRatio.java
+    250   0.0   0.0
+    500   0.0   NaN
+   1000   0.0   NaN
+   2000   0.0 Infinity
+   4000   0.0   2.0
+   8000   0.0   1.0
+  16000   0.0   2.5
+  32000   0.0   1.4
+  64000   0.0   1.4
+ 128000   0.0   2.2
+ 256000   0.0   1.2
+ 512000   0.0   1.4
+1024000   0.1   2.1
+2048000   0.2   2.0
+4096000   0.3   2.1
+8192000   0.7   2.1
+16384000   1.3   2.0
+32768000   3.0   2.2
+65536000   5.9   2.0
+131072000  12.8   2.2
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+```
+
+Also, `GenerateDoubles.java` is just for generating a list of random doubles, in case you want to run `ClosestPair.java` without using `DoublingRatio.java`. It generates N doubles and prints them to stdout.
+
+```
+./demo.sh ch1_fundamentals/analysis_of_algorithms/GenerateDoubles.java 3
+-130239.18919157668
+-896684.4776422336
+875496.4231525634
+```
+
+`1Mdoubles.txt` was generated using `GenerateDoubles.java`. It's nearly 18Mb, so open it with caution.
+
+```
+$ ./demo.sh ch1_fundamentals/analysis_of_algorithms/ClosestPair.java < ch1_fundamentals/analysis_of_algorithms/1Mdoubles.txt
+(999996.1746621621, 999999.1425217595)
+```
+
+#### ThrowEggs (and Building)
+
+![A graph of data from my ThrowEggs program.](docs/egg_drops_500.png)
+
+```
+./demo.sh ch1_fundamentals/analysis_of_algorithms/ThrowEggs.java 500
+```
+
+`ThrowEggs` contains my solutions to four versions of one of the creative problems listed in the book.
+
+The problems are about dropping eggs from different floors of a building to determine the lowest floor at which eggs will crack when dropped. The height of the building is N, and the target floor is F. `Building.java` is just a handy way to encapsulate those two variables, such that after creating a `Building`, I can get how many floors it has but _cannot_ simply access its target floor. I also made a test method `throwEgg(int floor)` that returns a boolean indicating whether the egg dropped from the given floor cracked or not.
+
+- The red line is $O(N)$ -- drop an egg at consecutive floors, starting from the bottom, until the correct floor is found. This is a basic linear solution, but I can do better.
+
+- The yellow line is $O(\lg(N))$. Start at the middle floor, and based on whether the egg cracks, search the corresponding half in the same manner -- if cracked, search below; if not cracked, search above. Repeat until the window of possible floors is narrowed to one floor.
+
+- The green lines are $O(\lg(F))$, using an algorithm based not on the total size of the building N, but on the target floor F. Starting at the ground floor, move to the next power-of-2 floor (0 &#8594; 1 &#8594; 2 &#8594; 4 etc.) until finding a floor where the egg breaks. Then, binary-search the last "chunk" between the known egg-cracking floor and the previous non-egg-cracking floor. The lighter green line represents the average number of throws per building size; the darker green line represents the average number of throws _depending on F_, i.e. the x-axis is F instead of N.
+
+- The cyan line is $O(\sqrt{N})$ when given **_only two eggs!_** This is accomplished by dividing the building into "chunks" of size $\sqrt{N}$. Drop the first egg at the beginning of every chunk, starting at the first floor, until finding the first chunk where the egg cracks. Then, search the previous chunk one floor at a time (ascending).
+
+- The purple lines are $O(\sqrt{F})$, also when given **_only two eggs._** Instead of using chunks of size $\sqrt{N}$, use chunks between _squares_! Starting at the bottom floor, move to the next square floor (0 &#8594; 1 &#8594; 4 &#8594; 9 etc.) until the first egg cracks. Then, move back to the previous square floor and search one floor at a time (ascending). As with the green lines, the ligher purple line represents the average number of throws per building size, and the darker purple points represent the average number of throws _depending on F_.
