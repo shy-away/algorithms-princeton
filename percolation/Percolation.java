@@ -1,8 +1,9 @@
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
-  private boolean[] siteStatuses;
-  private int gridSideLength, openSites, topVirtualNode, bottomVirtualNode;
+  private boolean[] sitesOpen, treesConnectedToBottom;
+  private boolean percolates;
+  private int gridSideLength, numOpenSites, topVirtualNode;
   private WeightedQuickUnionUF sites;
 
   public Percolation(int n) {
@@ -10,14 +11,14 @@ public class Percolation {
       throw new IllegalArgumentException();
 
     gridSideLength = n;
-    siteStatuses = new boolean[n * n];
-    openSites = 0;
+    sitesOpen = new boolean[n * n];
+    treesConnectedToBottom = new boolean[n * n];
+    numOpenSites = 0;
     sites = new WeightedQuickUnionUF(n * n + 2); // O(n^2) constructor
 
     // note: WeightedQuickUnionUF is 0-indexed internally,
-    // so bottomVirtualNode is actually the last node
+    // so topVirtualNode is actually the last node
     topVirtualNode = n * n;
-    bottomVirtualNode = n * n + 1;
   }
 
   public void open(int row, int col) {
@@ -26,41 +27,46 @@ public class Percolation {
 
     int currentNode = xyTo1D(row, col);
 
-    siteStatuses[currentNode] = true;
-    openSites++;
+    sitesOpen[currentNode] = true;
+    numOpenSites++;
 
-    if (col - 1 > 0) {
-      int leftNode = xyTo1D(row, col - 1);
-      if (siteStatuses[leftNode]) {
-        sites.union(currentNode, leftNode);
+    int currentNodeRoot = sites.find(currentNode);
+    boolean willTouchBottom;
+    int[] offsetRow = { 0, 0, -1, 1 };
+    int[] offsetCol = { -1, 1, 0, 0 };
+
+    for (int i = 0; i < 4; i++) {
+      int neighborRow = row + offsetRow[i];
+      int neighborCol = col + offsetCol[i];
+
+      if (neighborCol < 1 || neighborCol > gridSideLength)
+        continue;
+
+      if (neighborRow < 1) {
+        // top edge, union with top virtual node
+        sites.union(currentNode, topVirtualNode);
+        continue;
+      }
+
+      if (neighborRow > gridSideLength) {
+        // bottom edge
+        treesConnectedToBottom[currentNodeRoot] = true;
+        continue;
+      }
+
+      int neighborNode = xyTo1D(neighborRow, neighborCol);
+      int neighborNodeRoot = sites.find(neighborNode);
+
+      if (sitesOpen[neighborNode] && currentNodeRoot != neighborNodeRoot) {
+        willTouchBottom = treesConnectedToBottom[currentNodeRoot] || treesConnectedToBottom[neighborNodeRoot];
+        sites.union(currentNode, neighborNodeRoot);
+        currentNodeRoot = sites.find(currentNode);
+        treesConnectedToBottom[currentNodeRoot] = willTouchBottom;
       }
     }
-
-    if (col + 1 <= gridSideLength) {
-      int rightNode = xyTo1D(row, col + 1);
-      if (siteStatuses[rightNode]) {
-        sites.union(currentNode, rightNode);
-      }
-    }
-
-    if (row - 1 > 0) {
-      int aboveNode = xyTo1D(row - 1, col);
-      if (siteStatuses[aboveNode]) {
-        sites.union(currentNode, aboveNode);
-      }
-    } else {
-      // top edge, union with top virtual node
-      sites.union(currentNode, topVirtualNode);
-    }
-
-    if (row + 1 <= gridSideLength) {
-      int belowNode = xyTo1D(row + 1, col);
-      if (siteStatuses[belowNode]) {
-        sites.union(currentNode, belowNode);
-      }
-    } else {
-      // bottom edge, union with bottom virtual node
-      sites.union(currentNode, bottomVirtualNode);
+    
+    if (treesConnectedToBottom[currentNodeRoot] && currentNodeRoot == sites.find(topVirtualNode)) {
+      percolates = true;
     }
   }
 
@@ -68,7 +74,7 @@ public class Percolation {
     validate(row);
     validate(col);
 
-    return siteStatuses[xyTo1D(row, col)];
+    return sitesOpen[xyTo1D(row, col)];
   }
 
   public boolean isFull(int row, int col) {
@@ -81,24 +87,24 @@ public class Percolation {
   }
 
   public int numberOfOpenSites() {
-    return openSites;
+    return numOpenSites;
   }
 
   public boolean percolates() {
-    return sites.find(topVirtualNode) == sites.find(bottomVirtualNode);
+    return percolates;
   }
 
   /**
    * Takes a 1-indexed 2D grid coordinate pair and outputs a 0-indexed result.
    * 
-   * @param x 2d grid x-coordinate
-   * @param y 2d grid y-coordinate
+   * @param row 2d grid x-coordinate
+   * @param col 2d grid y-coordinate
    * @return 1-dimensional 0-indexed result
    */
-  private int xyTo1D(int x, int y) {
-    validate(x);
-    validate(y);
-    return ((y - 1) * gridSideLength) + (x - 1);
+  private int xyTo1D(int row, int col) {
+    validate(row);
+    validate(col);
+    return ((row - 1) * gridSideLength) + (col - 1);
   }
 
   private void validate(int index) {
@@ -124,9 +130,9 @@ public class Percolation {
     p = new Percolation(5);
 
     assert p.xyTo1D(1, 1) == 0;
-    assert p.xyTo1D(5, 1) == 4;
-    assert p.xyTo1D(1, 2) == 5;
-    assert p.xyTo1D(3, 2) == 7;
+    assert p.xyTo1D(1, 5) == 4;
+    assert p.xyTo1D(2, 1) == 5;
+    assert p.xyTo1D(2, 3) == 7;
     assert p.xyTo1D(5, 5) == 24;
 
     // open()
@@ -148,12 +154,29 @@ public class Percolation {
     }
     assert hasErred;
 
-    p.open(1, 1);
-    assert p.isOpen(1, 1);
-    assert p.numberOfOpenSites() == 1;
-
+    // all methods
+    assert !p.isOpen(2, 1);
     p.open(2, 1);
     assert p.isOpen(2, 1);
+    assert !p.isFull(2, 1);
+    assert p.numberOfOpenSites() == 1;
+    assert !p.percolates();
+
+    p.open(1, 1);
+    assert p.isOpen(1, 1);
+    assert p.isFull(1, 1);
+    assert p.isFull(2, 1);
     assert p.numberOfOpenSites() == 2;
+    assert p.percolates();
+
+    p = new Percolation(5);
+    p.open(1, 3);
+    p.open(2, 3);
+    p.open(3, 3);
+    p.open(4, 4);
+    p.open(5, 4);
+    assert !p.percolates();
+    p.open(4, 3);
+    assert p.percolates();
   }
 }
