@@ -25,7 +25,7 @@ public class Percolation {
     validate(row);
     validate(col);
 
-    int currentNode = xyTo1D(row, col);
+    int currentNode = rowColTo1D(row, col);
 
     sitesOpen[currentNode] = true;
     numOpenSites++;
@@ -54,7 +54,7 @@ public class Percolation {
         continue;
       }
 
-      int neighborNode = xyTo1D(neighborRow, neighborCol);
+      int neighborNode = rowColTo1D(neighborRow, neighborCol);
       int neighborNodeRoot = sites.find(neighborNode);
 
       if (sitesOpen[neighborNode] && currentNodeRoot != neighborNodeRoot) {
@@ -74,14 +74,14 @@ public class Percolation {
     validate(row);
     validate(col);
 
-    return sitesOpen[xyTo1D(row, col)];
+    return sitesOpen[rowColTo1D(row, col)];
   }
 
   public boolean isFull(int row, int col) {
     validate(row);
     validate(col);
 
-    int currentNode = xyTo1D(row, col);
+    int currentNode = rowColTo1D(row, col);
 
     return sites.find(currentNode) == sites.find(topVirtualNode);
   }
@@ -97,11 +97,11 @@ public class Percolation {
   /**
    * Takes a 1-indexed 2D grid coordinate pair and outputs a 0-indexed result.
    * 
-   * @param row 2d grid x-coordinate
-   * @param col 2d grid y-coordinate
+   * @param row 2d grid row coordinate
+   * @param col 2d grid column coordinate
    * @return 1-dimensional 0-indexed result
    */
-  private int xyTo1D(int row, int col) {
+  private int rowColTo1D(int row, int col) {
     validate(row);
     validate(col);
     return ((row - 1) * gridSideLength) + (col - 1);
@@ -129,11 +129,11 @@ public class Percolation {
     // xyTo1D mapping
     p = new Percolation(5);
 
-    assert p.xyTo1D(1, 1) == 0;
-    assert p.xyTo1D(1, 5) == 4;
-    assert p.xyTo1D(2, 1) == 5;
-    assert p.xyTo1D(2, 3) == 7;
-    assert p.xyTo1D(5, 5) == 24;
+    assert p.rowColTo1D(1, 1) == 0;
+    assert p.rowColTo1D(1, 5) == 4;
+    assert p.rowColTo1D(2, 1) == 5;
+    assert p.rowColTo1D(2, 3) == 7;
+    assert p.rowColTo1D(5, 5) == 24;
 
     // open()
     p = new Percolation(2);
