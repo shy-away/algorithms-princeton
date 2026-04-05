@@ -68,7 +68,8 @@ public class WeightedQuickUnionUF {
       uf.union(p, q);
       StdOut.println(p + " " + q);
     }
+    
     StdOut.println(uf.count() + " components");
-    System.out.println(s.elapsedTime());
+    System.out.println(s.elapsedTime() + " seconds");
   }
 }

@@ -42,7 +42,8 @@ public class UF {
 
       if (uf.connected(p, q)) continue;
       uf.union(p, q);
-      StdOut.println(uf.count() + " components");
+      StdOut.println(p + " " + q);
     }
+    StdOut.println(uf.count() + " components");
   }
 }

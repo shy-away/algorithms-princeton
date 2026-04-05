@@ -2,6 +2,7 @@ package ch1_fundamentals.union_find;
 
 import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.Stopwatch;
 
 public class QuickFindUF {
   private int[] id;
@@ -47,6 +48,8 @@ public class QuickFindUF {
     int N = StdIn.readInt();
     QuickFindUF uf = new QuickFindUF(N);
 
+    Stopwatch s = new Stopwatch();
+
     while (!StdIn.isEmpty()) {
       int p = StdIn.readInt();
       int q = StdIn.readInt();
@@ -54,7 +57,10 @@ public class QuickFindUF {
       if (uf.connected(p, q))
         continue;
       uf.union(p, q);
-      StdOut.println(uf.count() + " components");
+      StdOut.println(p + " " + q);
     }
+
+    StdOut.println(uf.count() + " components");
+    System.out.println(s.elapsedTime() + " seconds");
   }
 }
