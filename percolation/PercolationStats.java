@@ -8,14 +8,14 @@ public class PercolationStats {
   public PercolationStats(int n, int trials) {
     if (n <= 0 || trials <= 0)
       throw new IllegalArgumentException();
-    
+
     // initialize indices
     int numGridSites = n * n;
     int[] siteIndices = new int[numGridSites];
     for (int i = 0; i < numGridSites; i++) {
       siteIndices[i] = i;
     }
-    
+
     // run trials
     Percolation p;
     double[] results = new double[trials];

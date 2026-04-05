@@ -12,9 +12,9 @@ public class Percolation {
 
     gridSideLength = n;
     sitesOpen = new boolean[n * n];
-    treesConnectedToBottom = new boolean[n * n];
+    treesConnectedToBottom = new boolean[n * n + 1];
     numOpenSites = 0;
-    sites = new WeightedQuickUnionUF(n * n + 2); // O(n^2) constructor
+    sites = new WeightedQuickUnionUF(n * n + 1); // O(n^2) constructor
 
     // note: WeightedQuickUnionUF is 0-indexed internally,
     // so topVirtualNode is actually the last node
@@ -27,8 +27,10 @@ public class Percolation {
 
     int currentNode = rowColTo1D(row, col);
 
-    sitesOpen[currentNode] = true;
-    numOpenSites++;
+    if (!sitesOpen[currentNode]) {
+      sitesOpen[currentNode] = true;
+      numOpenSites++;
+    }
 
     int currentNodeRoot = sites.find(currentNode);
     boolean willTouchBottom;
@@ -64,7 +66,7 @@ public class Percolation {
         treesConnectedToBottom[currentNodeRoot] = willTouchBottom;
       }
     }
-    
+
     if (treesConnectedToBottom[currentNodeRoot] && currentNodeRoot == sites.find(topVirtualNode)) {
       percolates = true;
     }
@@ -121,7 +123,7 @@ public class Percolation {
     hasErred = false;
     try {
       p = new Percolation(0);
-    } catch (Exception e) {
+    } catch (IllegalArgumentException e) {
       hasErred = true;
     }
     assert hasErred;
