@@ -81,6 +81,78 @@ Exception in thread "main" java.util.NoSuchElementException
         at Permutation.main(Permutation.java:16)
 ```
 
+## Percolation
+
+![Percolation.](docs/percolation.png)
+
+This project is about using a Union-find structure to simulate the abstract scientific concept of percolation. My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/percolation/specification.php) for more details.
+
+### Background
+
+Imagine a porous material; how porous does it need to be to allow water to flow all the way through it? Or, imagine a material that is a mixture of a conductor and an insulator; what _ratio_ of conductor to insulator is necessary for the _overall material_ to be conductive? These and other questions are answerable through simulations of percolation.
+
+A material is simulated as a grid of sites. Each site can either be closed (default) or open. An open site would be like a cavity in a porous material, or the conductor in a conductor/insulator mixture. If a site could be reached from the top, it is said to be "full" (analogous to water flowing down through the material, or electricity being supplied from the top). Sites can be randomly opened until the grid has enough open sites to allow flow to go from top to bottom, at which point the grid is said to percolate. The simulation can be repeated for a number of trials, after which statistics can be calculated.
+
+**Note:** The supplied files include Princeton's test clients `PercolationVisualizer.java` and `InteractivePercolationVisualizer.java`, _neither of which I built,_ but both of which use my `Percolation` implementation in this repo. I didn't create the test input files either; I've decided to include the provided [`CREDITS`](percolation/CREDITS) for them as well.
+
+### [Percolation.java](percolation/Percolation.java)
+
+![A visualization of a 20-by-20 percolation simulation.](docs/percolation_input20.png)
+
+```
+./demo.sh percolation/PercolationVisualizer.java percolation/input20.txt
+```
+
+`Percolation.java` manages a percolation simulation of an n-by-n grid. Individual grid sites can be opened, or can be checked to determine if they are full. The overall simulation keeps track of how many total sites are open (full or not), and also determines whether or not the grid percolates.
+
+The constructor is $O(n^2)$ due to the grid being n-by-n, but _all other methods are constant time._
+
+- `open(int row, int col)` first opens the specified site (if it isn't already open). Then, it checks all four neighboring sites, calling `union()` if they aren't already connected. (Other complexities are addressed later.)
+- `isOpen(int row, int col)` simply checks whether the specified site is open. (Internally this is managed using a `boolean[]` array, so the operation is very simple.)
+- `isFull(int row, int col)` checks whether the specified site is in the same Union-find tree as a top virtual node. Think of this top virtual node as representing the water/electricity source; if an open site is in the same Union-find tree as this top virtual node (i.e. they're connected), the open site would be accessible to the water/electricity "coming from" the top virtual node.
+- `percolates()` returns the status of an internal flag, but that was not the case at first (explained below).
+
+To determine percolation, my first attempt used a top virtual node and a _bottom_ virtual node. If the top and bottom are connected via some path of open sites, then the system percolates. However, the existence of a bottom node creates a problem known as **backwash** (image taken from [booksite](https://coursera.cs.princeton.edu/algs4/assignments/percolation/faq.php)):
+
+![An illustration of the backwash problem.](docs/percolation-backwash.png)
+
+In a grid that percolates, there may be sites connected to the bottom but not _visually_ connected to the top. However, since such bottom open sites are connected to the bottom virtual node, and the bottom virtual node _itself_ is connected to the top virtual node (since the grid percolates), the open sites at the bottom _are_ connected to the top in the underlying Union-find structure. Therefore, since `isFull()` checks whether a site is connected to the top virtual node, _all_ open nodes connected to the bottom will erroneously return `true` in a system that percolates.
+
+To solve this complex problem, the bottom virtual node needs to be removed. `isFull()` won't work otherwise. But that bottom virtual node was being used to determine percolation. So how can percolation be determined without it?
+
+Instead of directly checking the Union-find structure to determine percolation, my `Percolation.java` uses a `boolean[]` array to keep track of all Union-find trees that _touch_ the bottom.
+
+The logic all resides in `open()`. When a site is opened at the bottom of the grid, the tree containing that site (root node accessible via `find()` in the Union-find object) is flagged as connected to the bottom. Then, whenever another tree is merged with any such flagged tree (as may happen in other `open()` calls), the resulting tree necessarily also touches the bottom, so its flag is also updated. Lastly, after all those operations, if the current node being opened is both (1) connected to the bottom and (2) connected to the top, then the system must percolate. No bottom virtual node required!
+
+Using the demo script directly on `Percolation.java` just runs its unit tests. Insetad, to visualize the grid, use Princeton's supplied `PercolationVisualizer.java` with an input file.
+
+![A percolation visualization that looks like an eagle's head.](docs/percolation_eagle25.png)
+
+```
+./demo.sh percolation/PercolationVisualizer.java percolation/eagle25.txt
+```
+
+Or, you can use Princeton's supplied `InteractivePercolationVisualizer.java` and make your own pattern. Click on grid sites to open them. (Optionally set the grid size; default size is 10.)
+
+![A custom percolation visualization of square patterns.](docs/percolation_squares.png)
+
+```
+./demo.sh percolation/InteractivePercolationVisualizer.java
+```
+
+### [PercolationStats.java](percolation/PercolationStats.java)
+
+`PercolationStats.java` runs a Monte Carlo simulation to estimate the percolation threshold. It accepts a grid size `n` and a trial count `T`.
+
+```
+./demo.sh percolation/PercolationStats.java 200 100
+mean                    = 0.5921590000000002
+stddev                  = 0.009801390413630305
+95% confidence interval = [0.5902379274789287, 0.5940800725210718]
+```
+
+So, using these percolation simulations, the threshold of sites that need to be open in order for the grid to percolate is, on average, just above 59%. (At least in 2D!)
+
 # Chapter Exercises & Problems
 
 These are smaller projects from each chapter that I decided to do, for one reason or another. The `demo.sh` can run them all the same.
@@ -263,3 +335,81 @@ The problems are about dropping eggs from different floors of a building to dete
 - The cyan line is $O(\sqrt{N})$ when given **_only two eggs!_** This is accomplished by dividing the building into "chunks" of size $\sqrt{N}$. Drop the first egg at the beginning of every chunk, starting at the first floor, until finding the first chunk where the egg cracks. Then, search the previous chunk one floor at a time (ascending).
 
 - The purple lines are $O(\sqrt{F})$, also when given **_only two eggs._** Instead of using chunks of size $\sqrt{N}$, use chunks between _squares_! Starting at the bottom floor, move to the next square floor (0 &#8594; 1 &#8594; 4 &#8594; 9 etc.) until the first egg cracks. Then, move back to the previous square floor and search one floor at a time (ascending). As with the green lines, the ligher purple line represents the average number of throws per building size, and the darker purple points represent the average number of throws _depending on F_.
+
+### Case Study: Union-Find
+
+#### UF, QuickFindUF, QuickUnionUF, WeightedQuickUnionUF
+
+These were retyped from the book, mostly to check my understanding of what exactly each version of Union-find was doing.
+
+- `UF.java` isn't functional, and was used as a base for building the others (to avoid particularly tedious retyping). The methods `union()` and `find()` simply throw errors.
+
+- `QuickFindUF.java` is an implementation of Union-find that uses an internal `id[]` to track which nodes of the graph are connected to which other nodes. `find()` is quick because it simply returns `id[p]` for any point `p`. However, `union()` is very inefficient because when the two specified points aren't already connected, actually connecting them involves traversing the full `id[]` array.
+
+- `QuickUnionUF.java` is an attempt to solve the QuickFind problem by creating a conceptual tree structure in `id[]`, where if `id[x] == y`, then `x` is a child node to `y` the parent node. Thus also if `id[x] == x` itself, then `x` is the root of a tree. This approach turns out to slow down `find()` slightly, since it requires traversing a tree to find the root node of the input point. But `union()` only requires merging two trees, which is a relatively fast and easy task: set `id[firstRoot] = secondRoot`. The oversight here is that the trees can get tall, so traversing trees can still take a while.
+
+- `WeightedQuickUnionUF.java` controls how tall any individual tree can get by tracking the sizes of each tree in a new `sz[]` array, such that the size of any tree whose root node is point `p` is `sz[p]`. (For clarity, "size" here does _not_ refer to the height of the tree, but to the number of nodes it contains. That said, this ultimately still controls tree height.) So, instead of blindly merging pairs of trees into potentially tall and inefficient configurations, `union()` can now check the size of both trees and merge the smaller tree into the larger one.
+
+All of these (except `UF.java`) can be run from the command line with an input file. The provided test input files begin with a grid size, and then a series of coordinate pairs (1-indexed, from top left). Each Union-find implementation relays the points that, given that specific sequence of coordinate pairs, are not _already in the same group_ when they are encountered. They then list the number of groups (components) in the Union-find structure, as well as how long it took to process all of the inputs.
+
+```
+$ more ch1_fundamentals/union_find/tinyUF.txt
+10
+4 3
+3 8
+6 5
+9 4
+2 1
+8 9
+5 0
+7 2
+6 1
+1 0
+6 7
+
+$ ./demo.sh ch1_fundamentals/union_find/WeightedQuickUnionUF.java < ch1_fundamentals/union_find/tinyUF.txt
+4 3
+3 8
+6 5
+9 4
+2 1
+5 0
+7 2
+6 1
+2 components
+0.005 seconds
+```
+
+Notice for example that `8 9` was not relayed because by that point, they were already connected via `4 3`, `3 8`, and `9 4`.
+
+#### RandomGrid (and Connection)
+
+The main method of `RandomGrid.java` takes a grid size from stdin and outputs all adjacent pairs of points in the grid, in random order, with coordinates shuffled, e.g. the pair `(2, 5)` is as likely as `(5, 2)`. (The ADT `Connection.java` encapsulates each connection.)
+
+```
+$ ./demo.sh ch1_fundamentals/union_find/RandomGrid.java 3
+(6, 7)
+(0, 3)
+(1, 4)
+(6, 3)
+(5, 8)
+(1, 2)
+(5, 2)
+(4, 5)
+(7, 8)
+(4, 7)
+(4, 3)
+(1, 0)
+```
+
+Internally, `RandomGrid.java` has a static method `generate()` that actually does all of the work. In turn, `generate()` uses a copy of `RandomizedQueue.java` from my Queues project to randomly order the connections.
+
+#### GridAnimation
+
+![A grid of white dots, where each dot is connected to each other, with no loops.](docs/grid_animation_15.png)
+
+```
+./demo.sh ch1_fundamentals/union_find/GridAnimation.java 15
+```
+
+`GridAnimation.java` takes a grid size N from stdin and draws random connections on an N-by-N grid, using a Union-find structure to check connectivity. Visually, this ensures the line never loops! It uses `generate()` from `RandomGrid.java` to create all of the connections.
