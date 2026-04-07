@@ -7,7 +7,7 @@ TARGET=$1
 DIR=$(dirname "$TARGET")
 CLASS=$(basename "$TARGET")
 
-javac -cp "$CLASSPATH" "$DIR"/*.java
+javac -cp "$CLASSPATH" "$DIR"/*.java 2>&1 | awk '!/Note/'
 
 shift 1
 
