@@ -413,3 +413,49 @@ Internally, `RandomGrid.java` has a static method `generate()` that actually doe
 ```
 
 `GridAnimation.java` takes a grid size N from stdin and draws random connections on an N-by-N grid, using a Union-find structure to check connectivity. Visually, this ensures the line never loops! It uses `generate()` from `RandomGrid.java` to create all of the connections.
+
+## Chapter 2: Sorting
+
+Instead of nesting programs in subdirectories for each chapter section, I'll organize this section by program. I did this because it makes more sense to put all the sorting algorithms in one Java program, since they all use the same `exch()` and `less()` methods, and will all be tested in similar ways.
+
+### Sorter
+
+A `Sorter` can sort any `Comparable[]`, using any of its specified methods for doing so. Optionally, its constructor can accept a flag for whether it should draw the sorting process (if the array is a `Double[]`).
+
+- `sortUsing(Comparable[] a, String alg)` checks whether the given algorithm name is one of the sorting methods provided, and if so, uses that algorithm to sort the given array.
+- Every sorting algorithm has its own method, which is its name minus "sort" at the end, e.g. shellsort is implemented in `shell(Comparable[] a)`.
+- `main()` accepts a series of strings, sorts them, uses a private method to check that the sorting algorithm was successful, and prints the sorted array contents to stdout. It's useful for testing new sorting methods when I add them. I've included a `tiny.txt` for testing this.
+
+### SortCompare
+
+`SortCompare.java` can compare the time performance of two sorting algorithms head-to-head. Specify the names of two algorithms, the array size to use, and the number of trials to run.
+
+```
+./demo.sh -i ch2_sorting/SortCompare.java shell insertion 500 100
+For 500 random Doubles
+   shell is 11.05 times faster than insertion
+```
+
+**Note:** When comparing sorting methods, _always_ use my demo script's flag `-i` to switch from JIT compilation to interpreted mode. This will make the program overall slower, but will more accurately reflect the performance of the algorithms head-to-head. The JIT compiler uses optimizations that mess with the timings by default.
+
+Notice the timing difference:
+
+```
+$ ./demo.sh ch2_sorting/SortCompare.java insertion selection 200 500
+For 200 random Doubles
+   insertion is 0.77 times faster than selection
+
+$ ./demo.sh -i ch2_sorting/SortCompare.java insertion selection 200 500
+For 200 random Doubles
+   insertion is 1.40 times faster than selection
+```
+
+### DisplaySorts
+
+`DisplaySorts.java` displays the sorting process as it happens! Specify an array size and the sorting algorithm to use.
+
+![A snapshot of selection sort.](docs/selection.png)
+
+```
+./demo.sh ch2_sorting/DisplaySorts.java 50 selection
+```
