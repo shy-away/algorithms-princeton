@@ -10,6 +10,7 @@ import edu.princeton.cs.algs4.StdOut;
 @SuppressWarnings("unchecked")
 public class Sorter {
   private Double[] cached;
+  private Comparable[] aux;
   private boolean drawIfPossible;
 
   public Sorter() {
@@ -22,7 +23,7 @@ public class Sorter {
 
   public void sortUsing(Comparable[] a, String alg) {
     try {
-      Method sortMethod = Sorter.class.getMethod(alg.toLowerCase(), Comparable[].class);
+      Method sortMethod = Sorter.class.getMethod(alg, Comparable[].class);
       sortMethod.invoke(this, (Object) a);
     } catch (NoSuchMethodException e) {
       System.out.println("No such sort method: " + alg);
@@ -62,8 +63,6 @@ public class Sorter {
       if (isDrawing)
         draw((Double[]) a);
     }
-
-    cached = null;
   }
 
   public void insertion(Comparable[] a) {
@@ -79,8 +78,6 @@ public class Sorter {
           draw((Double[]) a);
       }
     }
-
-    cached = null;
   }
 
   public void shell(Comparable[] a) {
@@ -106,8 +103,94 @@ public class Sorter {
 
       h = h / 3;
     }
+  }
 
-    cached = null;
+  public void merge(Comparable[] a) {
+    aux = new Comparable[a.length];
+
+    mergeRecur(a, 0, a.length - 1);
+  }
+
+  private void mergeRecur(Comparable[] a, int lo, int hi) {
+    if (hi <= lo)
+      return;
+
+    // insertion sort for small subarrays
+    if (hi - lo < 15) {
+      mergeSubarrayInsertion(a, lo, hi);
+    }
+
+    int mid = (lo + hi) / 2;
+
+    mergeRecur(a, lo, mid);
+    mergeRecur(a, mid + 1, hi);
+    mergeMerger(a, lo, mid, hi);
+  }
+
+  private void mergeMerger(Comparable[] a, int lo, int mid, int hi) {
+    // skip sorted subarrays
+    if (!less(a[mid + 1], a[mid]))
+      return;
+    
+    // insertion sort for small arrays
+    if (hi - lo < 15) {
+      mergeSubarrayInsertion(a, lo, hi);
+    }
+
+    boolean isDrawing = a instanceof Double[] && drawIfPossible;
+    int i = lo, j = mid + 1;
+
+    // copy subarray into aux
+    for (int k = lo; k <= hi; k++) {
+      aux[k] = a[k];
+    }
+
+    for (int k = lo; k <= hi; k++) {
+      if (i > mid) {
+        // left half exhausted
+        a[k] = aux[j++];
+      } else if (j > hi) {
+        // right half exhausted
+        a[k] = aux[i++];
+      } else if (less(aux[j], aux[i])) {
+        // left key greater than right key
+        a[k] = aux[j++];
+      } else {
+        // right key greater than or equal to left key
+        a[k] = aux[i++];
+      }
+
+      if (isDrawing) {
+        draw((Double[]) a);
+      }
+    }
+  }
+
+  private void mergeSubarrayInsertion(Comparable[] a, int lo, int hi) {
+    // insertion sort for use as mergesort optimization
+    boolean isDrawing = a instanceof Double[] && drawIfPossible;
+
+    for (int i = lo + 1; i <= hi; i++) {
+      for (int j = i; j > lo && less(a[j], a[j - 1]); j--) {
+        exch(a, j, j - 1);
+        if (isDrawing)
+          draw((Double[]) a);
+      }
+    }
+    return;
+  }
+
+  public void mergeBU(Comparable[] a) {
+    // mergesort, bottom-up implementation
+    int N = a.length;
+    aux = new Comparable[N];
+
+    for (int sz = 1; sz < N; sz += sz) {
+      // mergesort all subarrays of doubling size
+      for (int lo = 0; lo < N - sz; lo += sz + sz) {
+        mergeMerger(a, lo, lo + sz - 1, Math.min(N - 1, lo + sz + sz - 1));
+      }
+    }
   }
 
   private static void exch(Comparable[] a, int i, int j) {
@@ -176,6 +259,9 @@ public class Sorter {
     }
 
     StdDraw.pause(2000 / a.length);
+
+    if (isSorted(a))
+      cached = null;
   }
 
   public static boolean isSorted(Comparable[] a) {
