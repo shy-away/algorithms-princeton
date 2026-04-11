@@ -6,6 +6,7 @@ import java.lang.reflect.Modifier;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
 
 @SuppressWarnings("unchecked")
 public class Sorter {
@@ -108,6 +109,87 @@ public class Sorter {
     }
 
     cached = null;
+  }
+
+  public void quick(Comparable[] a) {
+    // recursively partition
+
+    // ensures partitioning element is likely not worst-case (array min or max
+    // element)
+    StdRandom.shuffle(a);
+
+    quickRecur(a, 0, a.length - 1);
+  }
+
+  private void quickRecur(Comparable[] a, int lo, int hi) {
+    boolean isDrawing = drawIfPossible && a instanceof Double[];
+
+    if (hi <= lo)
+      return;
+
+    // insertion sort for small subarrays
+    if (hi - lo < 10) {
+      for (int i = lo + 1; i < hi + 1; i++) {
+        for (int j = i; j > lo && less(a[j], a[j - 1]); j--) {
+          exch(a, j, j - 1);
+          if (isDrawing)
+            draw((Double[]) a);
+        }
+      }
+
+      return;
+    }
+
+    int j = partition(a, lo, hi);
+    quickRecur(a, lo, j - 1);
+    quickRecur(a, j + 1, hi);
+  }
+
+  private int partition(Comparable[] a, int lo, int hi) {
+    boolean isDrawing = drawIfPossible && a instanceof Double[];
+
+    // note: to avoid OBOEs, i is one index below the first left item to be scanned
+    // likewise j is one index above the first right item to be scanned
+    // i is set equal to lo because a[lo] is arbitrarily selected as the
+    // partitioning item
+    int i = lo, j = hi + 1;
+    Comparable v = a[lo];
+
+    while (true) {
+      // increment i until a[i] is no longer less than v
+      while (less(a[++i], v)) {
+        if (i == hi)
+          break;
+      }
+
+      // decrement j until a[j] is no longer greater than v
+      while (less(v, a[--j])) {
+        if (j == lo)
+          break;
+      }
+
+      // exit loop when j and i cross
+      if (i >= j)
+        break;
+
+      // a[i] is greater than the partition item
+      // a[j] is less than partitioning item
+      // swap them and continue scanning
+      exch(a, i, j);
+      if (isDrawing)
+        draw((Double[]) a);
+      // however, i < j, so scanning should continue
+    }
+
+    // put partition element between subarrays
+    // subarray a[lo..j-1] has no elements greater than j
+    // subarray a[j+1..hi] has no elements less than j
+    exch(a, lo, j);
+    if (isDrawing)
+      draw((Double[]) a);
+
+    // return index of partiioning element
+    return j;
   }
 
   private static void exch(Comparable[] a, int i, int j) {
