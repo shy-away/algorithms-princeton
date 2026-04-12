@@ -1,7 +1,7 @@
 import java.util.Arrays;
 import java.util.Iterator;
 
-import edu.princeton.cs.algs4.SET;
+import edu.princeton.cs.algs4.Queue;
 
 public class FastCollinearPoints {
   private LineSegment[] segments;
@@ -10,19 +10,7 @@ public class FastCollinearPoints {
     if (points == null)
       throw new IllegalArgumentException("Points array cannot be null");
 
-    class LineSegmentComparable implements Comparable<LineSegmentComparable> {
-      public final LineSegment segment;
-
-      public LineSegmentComparable(LineSegment segment) {
-        this.segment = segment;
-      }
-
-      public int compareTo(LineSegmentComparable that) {
-        return this.segment.toString().compareTo(that.segment.toString());
-      }
-    }
-
-    SET<LineSegmentComparable> foundSegments = new SET<>();
+    Queue<LineSegment> foundSegments = new Queue<>();
 
     Point[] pointsCopy = new Point[points.length];
     for (int i = 0; i < points.length; i++) {
@@ -30,6 +18,19 @@ public class FastCollinearPoints {
         throw new IllegalArgumentException("Null point in input");
 
       pointsCopy[i] = points[i];
+    }
+
+    // separate logic for point arrays less than 4
+    if (points.length < 4) {
+      for (int i = 0; i < points.length; i++) {
+        for (int j = i + 1; j < points.length; j++) {
+          if (points[i].compareTo(points[j]) == 0)
+            throw new IllegalArgumentException("Duplicate points in input");
+        }
+      }
+
+      segments = new LineSegment[0];
+      return;
     }
 
     for (int i = 0; i < points.length; i++) {
@@ -41,13 +42,6 @@ public class FastCollinearPoints {
       // there must be a second point equal to currentPoint (duplicate)
       if (currentPoint.slopeTo(pointsCopy[1]) == Double.NEGATIVE_INFINITY)
         throw new IllegalArgumentException("Duplicate points in input");
-
-      // impossible to find segment in array with too few points
-      // must perform this check *after* validation
-      if (points.length < 4) {
-        segments = new LineSegment[0];
-        return;
-      }
 
       // slide a window through pointsCopy to find window with at least three points
       // that make the same slope with currentPoint
@@ -72,16 +66,27 @@ public class FastCollinearPoints {
 
           Point[] collinears = new Point[numCollinears];
 
+          boolean willAddSegment = true;
+
           // numCollinears - 1 because of currentPoint
           for (int m = 0; m < numCollinears - 1; m++) {
             collinears[m] = pointsCopy[(j - 2) + m];
+
+            // only add segment if the least point is currentPoint
+            // prevents duplication
+            if (collinears[m].compareTo(currentPoint) < 0) {
+              willAddSegment = false;
+            }
           }
-          collinears[collinears.length - 1] = currentPoint;
 
-          Arrays.sort(collinears);
+          if (willAddSegment) {
+            collinears[collinears.length - 1] = currentPoint;
 
-          foundSegments
-              .add(new LineSegmentComparable(new LineSegment(collinears[0], collinears[collinears.length - 1])));
+            Arrays.sort(collinears);
+
+            LineSegment newSegment = new LineSegment(collinears[0], collinears[collinears.length - 1]);
+            foundSegments.enqueue(newSegment);
+          }
 
           j = lcp;
         }
@@ -92,10 +97,10 @@ public class FastCollinearPoints {
     }
 
     segments = new LineSegment[foundSegments.size()];
-    Iterator<LineSegmentComparable> iterator = foundSegments.iterator();
+    Iterator<LineSegment> iterator = foundSegments.iterator();
     int i = 0;
     while (iterator.hasNext()) {
-      segments[i] = iterator.next().segment;
+      segments[i] = iterator.next();
       i++;
     }
   }
@@ -105,7 +110,7 @@ public class FastCollinearPoints {
   }
 
   public LineSegment[] segments() {
-    return segments;
+    return Arrays.copyOf(segments, segments.length);
   }
 
   public static void main(String[] args) {
@@ -131,7 +136,7 @@ public class FastCollinearPoints {
     hasErred = false;
     try {
       fcp = new FastCollinearPoints(points);
-    } catch (Exception e) {
+    } catch (IllegalArgumentException e) {
       hasErred = true;
     }
     assert hasErred : "IllegalArgumentException for any null point";

@@ -1,6 +1,7 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.Stopwatch;
 
 /**
  * Note: The main method of this class was provided by Princeton.
@@ -30,7 +31,10 @@ public class CollinearPointsClient {
     StdDraw.show();
 
     // print and draw the line segments
+    Stopwatch s = new Stopwatch();
     FastCollinearPoints collinear = new FastCollinearPoints(points);
+    // BruteCollinearPoints collinear = new BruteCollinearPoints(points);
+    System.out.println(collinear.numberOfSegments() + " segment(s) found in " + s.elapsedTime() + " seconds");
     for (LineSegment segment : collinear.segments()) {
       StdOut.println(segment);
       segment.draw();

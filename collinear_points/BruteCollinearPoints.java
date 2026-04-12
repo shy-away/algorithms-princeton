@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 import edu.princeton.cs.algs4.Queue;
 
 public class BruteCollinearPoints {
@@ -11,32 +13,39 @@ public class BruteCollinearPoints {
 
     // search all permutations of points
     for (int p = 0; p < points.length; p++) {
-      if (points[p] == null)
-        throw new IllegalArgumentException("Null point in input");
+      validateNotNull(points[p]);
 
       for (int q = 0; q < points.length; q++) {
-        if (q == p)
+        validateNotNull(points[q]);
+
+        if (q == p || points[p].compareTo(points[q]) > 0)
           continue;
 
         if (points[p].compareTo(points[q]) == 0)
           throw new IllegalArgumentException("Duplicate points in input");
 
         for (int r = 0; r < points.length; r++) {
-          if (r == p || r == q)
+          validateNotNull(points[r]);
+
+          if (r == p || r == q || points[q].compareTo(points[r]) > 0)
+            continue;
+
+          double pToQ = points[p].slopeTo(points[q]);
+          double pToR = points[p].slopeTo(points[r]);
+
+          if (pToQ != pToR)
             continue;
 
           for (int s = 0; s < points.length; s++) {
-            if (s == p || s == q || s == r)
+            validateNotNull(points[s]);
+
+            if (s == p || s == q || s == r || points[r].compareTo(points[s]) > 0)
               continue;
 
-            double slopeToB = points[p].slopeTo(points[q]);
-            double slopeToC = points[p].slopeTo(points[r]);
-            double slopeToD = points[p].slopeTo(points[s]);
+            double pToS = points[p].slopeTo(points[s]);
 
-            // if all slopes are equal, and points are in ascending order, add new segment
-            if ((slopeToB == slopeToC && slopeToC == slopeToB) &&
-                points[p].compareTo(points[q]) < 0 && points[q].compareTo(points[r]) < 0
-                && points[r].compareTo(points[s]) < 0) {
+            // if all slopes are equal, add new segment
+            if (pToR == pToS) {
               foundSegments.enqueue(new LineSegment(points[p], points[s]));
             }
           }
@@ -50,12 +59,16 @@ public class BruteCollinearPoints {
     }
   }
 
+  private static void validateNotNull(Point p) {
+    if (p == null) throw new IllegalArgumentException("Null point");
+  }
+
   public int numberOfSegments() {
     return segments.length;
   }
 
   public LineSegment[] segments() {
-    return segments;
+    return Arrays.copyOf(segments, segments.length);
   }
 
   public static void main(String[] args) {
@@ -81,7 +94,7 @@ public class BruteCollinearPoints {
     hasErred = false;
     try {
       bcp = new BruteCollinearPoints(points);
-    } catch (Exception e) {
+    } catch (IllegalArgumentException e) {
       hasErred = true;
     }
     assert hasErred : "IllegalArgumentException for any null point";
