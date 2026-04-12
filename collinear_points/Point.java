@@ -67,7 +67,7 @@ public class Point implements Comparable<Point> {
     } else if (this.y == that.y)
       return +0.0;
 
-    return (that.y - this.y) / (that.x - this.x);
+    return (that.y - this.y) / (double) (that.x - this.x);
   }
 
   /**
@@ -165,6 +165,10 @@ public class Point implements Comparable<Point> {
 
     b = new Point(testX, testY);
     assert a.slopeTo(b) == Double.NEGATIVE_INFINITY : "slopeTo equal";
+
+    b = new Point(testX + 2, testY + 1);
+    System.out.println(a.slopeTo(b));
+    assert a.slopeTo(b) == 0.5 : "slopeTo fractions";
 
     // comparator
     b = new Point(testX + 2, testY);

@@ -1,7 +1,6 @@
 import java.util.Arrays;
 import java.util.Iterator;
 
-import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.SET;
 
 public class FastCollinearPoints {
@@ -52,22 +51,25 @@ public class FastCollinearPoints {
 
       // slide a window through pointsCopy to find window with at least three points
       // that make the same slope with currentPoint
+      // note: first point in pointsCopy is always currentPoint
       double s1 = currentPoint.slopeTo(pointsCopy[1]);
       double s2 = currentPoint.slopeTo(pointsCopy[2]);
-      double s3 = currentPoint.slopeTo(pointsCopy[3]);
+      double s3;
       for (int j = 3; j < pointsCopy.length; j++) {
-        s1 = s2;
-        s2 = s3;
         s3 = currentPoint.slopeTo(pointsCopy[j]);
 
         if (s1 == s2 && s2 == s3) {
           // TODO: check for more than four collinear points
           Point[] collinears = { pointsCopy[j - 2], pointsCopy[j - 1], pointsCopy[j], currentPoint };
-          
+
           Arrays.sort(collinears);
 
-          foundSegments.add(new LineSegmentComparable(new LineSegment(collinears[0], collinears[collinears.length - 1])));
+          foundSegments
+              .add(new LineSegmentComparable(new LineSegment(collinears[0], collinears[collinears.length - 1])));
         }
+
+        s1 = s2;
+        s2 = s3;
       }
     }
 
@@ -77,7 +79,7 @@ public class FastCollinearPoints {
     while (iterator.hasNext()) {
       segments[i] = iterator.next().segment;
       i++;
-    } 
+    }
   }
 
   public int numberOfSegments() {
@@ -139,13 +141,19 @@ public class FastCollinearPoints {
       points[i] = new Point(i, i);
     }
     fcp = new FastCollinearPoints(points);
-    
-    for (LineSegment l : fcp.segments()) {
-      System.out.println(l);
-    }
-
     assert fcp.numberOfSegments() == 1 && fcp.segments().length == 1 : "four points: find one segment";
     assert fcp.segments()[0].toString().equals("(0, 0) -> (3, 3)") : "four points: specific segment";
+
+    points = new Point[7];
+    points[0] = new Point(0, 0);
+    for (int i = 1; i < 4; i++) {
+      points[i] = new Point(i, i);
+    }
+    for (int i = 4; i < 7; i++) {
+      points[i] = new Point((i - 3), -(i - 3) * 2);
+    }
+    fcp = new FastCollinearPoints(points);
+    assert fcp.numberOfSegments() == 2;
 
     System.out.println("All tests pass");
   }
