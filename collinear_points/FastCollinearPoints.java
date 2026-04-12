@@ -59,13 +59,31 @@ public class FastCollinearPoints {
         s3 = currentPoint.slopeTo(pointsCopy[j]);
 
         if (s1 == s2 && s2 == s3) {
-          // TODO: check for more than four collinear points
-          Point[] collinears = { pointsCopy[j - 2], pointsCopy[j - 1], pointsCopy[j], currentPoint };
+          // check for more than four collinear points
+          int lcp = j; // last collinear point
+          while (lcp < pointsCopy.length && currentPoint.slopeTo(pointsCopy[lcp]) == s3) {
+            lcp++;
+          }
+          lcp--;
+
+          // the three found collinear points, plus currentPoint, plus any points found by
+          // the search for more than four collinear points
+          int numCollinears = 4 + (lcp - j);
+
+          Point[] collinears = new Point[numCollinears];
+
+          // numCollinears - 1 because of currentPoint
+          for (int m = 0; m < numCollinears - 1; m++) {
+            collinears[m] = pointsCopy[(j - 2) + m];
+          }
+          collinears[collinears.length - 1] = currentPoint;
 
           Arrays.sort(collinears);
 
           foundSegments
               .add(new LineSegmentComparable(new LineSegment(collinears[0], collinears[collinears.length - 1])));
+
+          j = lcp;
         }
 
         s1 = s2;
@@ -153,7 +171,14 @@ public class FastCollinearPoints {
       points[i] = new Point((i - 3), -(i - 3) * 2);
     }
     fcp = new FastCollinearPoints(points);
-    assert fcp.numberOfSegments() == 2;
+    assert fcp.numberOfSegments() == 2 : "two segments";
+
+    points = new Point[5];
+    for (int i = 0; i < points.length; i++) {
+      points[i] = new Point(i * 2, i);
+    }
+    fcp = new FastCollinearPoints(points);
+    assert fcp.numberOfSegments() == 1 : "five points: one segment";
 
     System.out.println("All tests pass");
   }
