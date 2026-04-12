@@ -23,7 +23,7 @@ public class Sorter {
 
   public void sortUsing(Comparable[] a, String alg) {
     try {
-      Method sortMethod = Sorter.class.getMethod(alg.toLowerCase(), Comparable[].class);
+      Method sortMethod = Sorter.class.getMethod(alg, Comparable[].class);
       sortMethod.invoke(this, (Object) a);
     } catch (NoSuchMethodException e) {
       System.out.println("No such sort method: " + alg);
@@ -190,6 +190,55 @@ public class Sorter {
 
     // return index of partiioning element
     return j;
+  }
+
+  public void quick3Way(Comparable[] a) {
+    // recursively partition, using 3-way partitioning recursive method
+    // more efficient for inputs with many duplicate keys
+
+    StdRandom.shuffle(a);
+
+    quick3WayRecur(a, 0, a.length - 1);
+  }
+
+  private void quick3WayRecur(Comparable[] a, int lo, int hi) {
+    boolean isDrawing = drawIfPossible && a instanceof Double[];
+
+    if (hi <= lo)
+      return;
+
+    int lt = lo, i = lo + 1, gt = hi;
+    Comparable v = a[lo];
+
+    // pass through array such that:
+    // - a[lo..lt-1] less than v
+    // - a[gt+1..hi] greater than v
+    // - a[lt..i-1] equals v
+    // during scan, a[i..gt] are not yet examined
+    while (i <= gt) {
+      int cmp = a[i].compareTo(v);
+      // three cases
+      if (cmp < 0) {
+        // current item is less than v
+        // put current item on lt side
+        exch(a, lt++, i++);
+        if (isDrawing)
+          draw((Double[]) a);
+      } else if (cmp > 0)
+        // current item is greater than v
+        // put current item on gt side
+        exch(a, i, gt--);
+      if (isDrawing)
+        draw((Double[]) a);
+      else {
+        // current item is equal to v
+        // no exchanges needed
+        i++;
+      }
+    }
+
+    quick3WayRecur(a, lo, lt - 1);
+    quick3WayRecur(a, gt + 1, hi);
   }
 
   private static void exch(Comparable[] a, int i, int j) {
