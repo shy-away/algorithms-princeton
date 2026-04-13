@@ -153,6 +153,67 @@ stddev                  = 0.009801390413630305
 
 So, using these percolation simulations, the threshold of sites that need to be open in order for the grid to percolate is, on average, just above 59%. (At least in 2D!)
 
+## Collinear Points
+
+![Ten thousand points distributed throughout a square, with lines drawn where 4 or more points lie along the same line.](docs/collinear_10k.png)
+
+Given a set of points, there may be subsets of four or more points that lie along the same line. What is the _fastest_ way to find all such lines?
+
+My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/collinear/specification.php) for more details.
+
+### [Point.java](collinear_points/Point.java)
+
+`Point.java` defines a `Point` data type. Some of its methods are provided by Princeton, but three methods use my own implementations.
+
+* `compareTo(Point that)` allows `Point`s to be compared. Each y-coordinate is compared, using the x-coordinate to break ties. This method allows `Point` to implement `Comparable`.
+* `slopeTo(Point that)` calculates the slope between two points. If the points are horizontal, the slope is `+0.0`; if the points are vertical, the slope is `Double.POSITIVE_INFINITY`; if the points are identical, the slope is `Double.NEGATIVE_INFINITY`.
+* `slopeOrder()` returns a `Comparator<Point>` such that it orders points by the slope they make _with the calling point_. For example, imagine three points `(2, 2)`, `(3, 1)`, and `(3, 3)`. If the latter two points were to be sorted by `new Point(2, 2).slopeOrder()`, the result would be `[(3, 3), (3, 1)]`, since the slope from `(2, 2)` to `(3, 3)` is greater than the slope from `(2, 2)` to `(3, 1)`.
+
+### [BruteCollinearPoints.java](collinear_points/BruteCollinearPoints.java)
+
+`BruteCollinearPoints.java` finds all sets of four or more collinear points using a brute-force searching algorithm. It examines all possible 4-point tuples in the input and determines whether they are collinear.
+
+* `BruteCollinearPoints(Point[] points)` runs the searching algorithm and stores all found segments.
+* `segments()` returns (a copy of) all found segments.
+* `numberOfSegments()` simply returns how many segments were found.
+
+Despite some minor optimizations, the core structure is four nested loops. Therefore, the overall time complexity is $O(n^4)$. Additionally, this algorithm is unable to find line segments containing _more_ than four points.
+
+### [FastCollinearPoints.java](collinear_points/FastCollinearPoints.java)
+
+`FastCollinearPoints.java` overcomes the limitations of its brute-force counterpart.
+
+In terms of its API, it is essentially identical:
+
+* `FastCollinearPoints(Point[] points)` runs the searching algorithm and stores all found segments.
+* `segments()` returns (a copy of) all found segments.
+* `numberOfSegments()` simply returns how many segments were found.
+
+The magic is that the searching algorithm uses multiple sorts to accomplish its task in $O(n^2\log n)$ time!
+
+For each point `currentPoint` in the input array, the points are sorted by the slope they make with `currentPoint` -- an $O(n \log n)$ operation repeated for every point, explaining the overall time complexity. Java offers an alias of `Arrays.sort()` that accepts a `T[]` and a `Comparator<T>`, making the operation plug-and-play with `currentPoint.slopeOrder()`. Then, if three or more points in the sorted array make the same slope with `currentPoint`, a collinear segment _may_ be found. To remove duplicates, the segment only counts if `currentPoint` is the _least_ point in the subset.
+
+Additionally, once a subset of collinear points is found, there is the problem of deciding which points act as the beginning and end of the `LineSegment` to be added. To accomplish this, the collinear point subset is sorted _again_, this time simply by `Point.compareTo()` (invoked internally by another alias of `Arrays.sort()`). From the resulting array, the first point becomes the beginning of the `LineSegment`, and the last point becomes the end of the `LineSegment`. This ensures that no matter what order the points are encountered in, the resulting `LineSegment` for any permutation of collinear points is always the same.
+
+Not only is this algorithm much faster than the brute-force method, it also supports line segments containing _more than_ 4 points.
+
+### [CollinearPointsClient.java](collinear_points/CollinearPointsClient.java)
+
+`CollinearPointsClient.java` accepts an input file, and using `FastCollinearPoints`, finds all line segments containing four or more points, displays the number of segments found and the time it took, and draws all the points and line segments.
+
+The picture at the beginning of this section was obtained using this command:
+
+```
+$ ./demo.sh collinear_points/CollinearPointsClient.java collinear_points/input10000.txt 
+35 segment(s) found in 17.437 seconds
+(1930, 8070) -> (26781, 8070)
+(351, 20127) -> (31354, 20127)
+(14588, 8324) -> (14588, 19900)
+(12581, 659) -> (12581, 12555)
+(225, 9391) -> (27077, 9391)
+```
+...and so on. There are many other test files to try.
+
 # Chapter Exercises & Problems
 
 These are smaller projects from each chapter that I decided to do, for one reason or another. The `demo.sh` can run them all the same.
