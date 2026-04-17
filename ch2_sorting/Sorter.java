@@ -324,6 +324,43 @@ public class Sorter {
     quick3WayRecur(a, gt + 1, hi);
   }
 
+  public void heap(Comparable[] a) {
+    // heap-order input in two stages
+
+    // heap construction
+    int N = a.length;
+    for (int k = N/2; k >= 1; k--) {
+      sink(a, k - 1, N - 1);
+    }
+
+    show(a);
+
+    // sortdown
+    while (N > 1) {
+      exch(a, 0, --N);
+      sink(a, 0, N - 1);
+    }
+  }
+
+  private void sink(Comparable[] a, int k, int N) {
+    while (2 * k <= N) {
+      // find largest child of node k
+      int j = 2 * k;
+      if (j < N && less(a[j], a[j + 1])) {
+        j++;
+      }
+
+      // stop loop if largest child is not less than k
+      if (!less(a[k], a[j])) {
+        break;
+      }
+
+      // sink k and iterate
+      exch(a, k, j);
+      k = j;
+    }
+  }
+
   private static void exch(Comparable[] a, int i, int j) {
     Comparable t = a[i];
     a[i] = a[j];
@@ -408,7 +445,8 @@ public class Sorter {
 
     // new Sorter().selection(a);
     // new Sorter().insertion(a);
-    new Sorter().shell(a);
+    // new Sorter().shell(a);
+    new Sorter().heap(a);
     assert isSorted(a);
 
     show(a);
