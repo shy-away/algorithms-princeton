@@ -12,14 +12,17 @@ import edu.princeton.cs.algs4.StdRandom;
 public class Sorter {
   private Double[] cached;
   private Comparable[] aux;
-  private boolean drawIfPossible;
+  private boolean drawIfPossible = false, isDrawing = false;
 
   public Sorter() {
-    drawIfPossible = false;
   }
 
   public Sorter(boolean drawIfPossible) {
     this.drawIfPossible = drawIfPossible;
+  }
+
+  private void determineDrawing(Comparable[] a) {
+    isDrawing = drawIfPossible && a instanceof Double[];
   }
 
   public void sortUsing(Comparable[] a, String alg) {
@@ -48,7 +51,7 @@ public class Sorter {
   }
 
   public void selection(Comparable[] a) {
-    boolean isDrawing = drawIfPossible && a instanceof Double[];
+    determineDrawing(a);
 
     // Repeatedly select the smallest remaining item
     int N = a.length;
@@ -61,13 +64,12 @@ public class Sorter {
       }
 
       exch(a, i, min);
-      if (isDrawing)
-        draw((Double[]) a);
+
     }
   }
 
   public void insertion(Comparable[] a) {
-    boolean isDrawing = drawIfPossible && a instanceof Double[];
+    determineDrawing(a);
 
     // Insert next item into sorted array section
     int N = a.length;
@@ -75,14 +77,12 @@ public class Sorter {
       // "Bubble down" the current item
       for (int j = i; j > 0 && less(a[j], a[j - 1]); j--) {
         exch(a, j, j - 1);
-        if (isDrawing)
-          draw((Double[]) a);
       }
     }
   }
 
   public void shell(Comparable[] a) {
-    boolean isDrawing = drawIfPossible && a instanceof Double[];
+    determineDrawing(a);
 
     // h-sort for decreasing h
     int N = a.length;
@@ -97,8 +97,6 @@ public class Sorter {
         // Insertion sort "bubble down" at h intervals
         for (int j = i; j >= h && less(a[j], a[j - h]); j -= h) {
           exch(a, j, j - h);
-          if (isDrawing)
-            draw((Double[]) a);
         }
       }
 
@@ -107,6 +105,8 @@ public class Sorter {
   }
 
   public void merge(Comparable[] a) {
+    determineDrawing(a);
+
     aux = new Comparable[a.length];
 
     mergeRecur(a, 0, a.length - 1);
@@ -132,13 +132,12 @@ public class Sorter {
     // skip sorted subarrays
     if (!less(a[mid + 1], a[mid]))
       return;
-    
+
     // insertion sort for small arrays
     if (hi - lo < 15) {
       mergeSubarrayInsertion(a, lo, hi);
     }
 
-    boolean isDrawing = a instanceof Double[] && drawIfPossible;
     int i = lo, j = mid + 1;
 
     // copy subarray into aux
@@ -161,6 +160,7 @@ public class Sorter {
         a[k] = aux[i++];
       }
 
+      // manual draw, since merging doesn't use exch()
       if (isDrawing) {
         draw((Double[]) a);
       }
@@ -169,19 +169,18 @@ public class Sorter {
 
   private void mergeSubarrayInsertion(Comparable[] a, int lo, int hi) {
     // insertion sort for use as mergesort optimization
-    boolean isDrawing = a instanceof Double[] && drawIfPossible;
 
     for (int i = lo + 1; i <= hi; i++) {
       for (int j = i; j > lo && less(a[j], a[j - 1]); j--) {
         exch(a, j, j - 1);
-        if (isDrawing)
-          draw((Double[]) a);
       }
     }
     return;
   }
 
   public void mergeBU(Comparable[] a) {
+    determineDrawing(a);
+
     // mergesort, bottom-up implementation
     int N = a.length;
     aux = new Comparable[N];
@@ -195,6 +194,7 @@ public class Sorter {
   }
 
   public void quick(Comparable[] a) {
+    determineDrawing(a);
     // recursively partition
 
     // ensures partitioning element is likely not worst-case (array min or max
@@ -205,7 +205,6 @@ public class Sorter {
   }
 
   private void quickRecur(Comparable[] a, int lo, int hi) {
-    boolean isDrawing = drawIfPossible && a instanceof Double[];
 
     if (hi <= lo)
       return;
@@ -215,8 +214,6 @@ public class Sorter {
       for (int i = lo + 1; i < hi + 1; i++) {
         for (int j = i; j > lo && less(a[j], a[j - 1]); j--) {
           exch(a, j, j - 1);
-          if (isDrawing)
-            draw((Double[]) a);
         }
       }
 
@@ -229,7 +226,6 @@ public class Sorter {
   }
 
   private int partition(Comparable[] a, int lo, int hi) {
-    boolean isDrawing = drawIfPossible && a instanceof Double[];
 
     // note: to avoid OBOEs, i is one index below the first left item to be scanned
     // likewise j is one index above the first right item to be scanned
@@ -259,8 +255,6 @@ public class Sorter {
       // a[j] is less than partitioning item
       // swap them and continue scanning
       exch(a, i, j);
-      if (isDrawing)
-        draw((Double[]) a);
       // however, i < j, so scanning should continue
     }
 
@@ -268,14 +262,14 @@ public class Sorter {
     // subarray a[lo..j-1] has no elements greater than j
     // subarray a[j+1..hi] has no elements less than j
     exch(a, lo, j);
-    if (isDrawing)
-      draw((Double[]) a);
 
     // return index of partiioning element
     return j;
   }
 
   public void quick3Way(Comparable[] a) {
+    determineDrawing(a);
+
     // recursively partition, using 3-way partitioning recursive method
     // more efficient for inputs with many duplicate keys
 
@@ -285,7 +279,6 @@ public class Sorter {
   }
 
   private void quick3WayRecur(Comparable[] a, int lo, int hi) {
-    boolean isDrawing = drawIfPossible && a instanceof Double[];
 
     if (hi <= lo)
       return;
@@ -305,14 +298,10 @@ public class Sorter {
         // current item is less than v
         // put current item on lt side
         exch(a, lt++, i++);
-        if (isDrawing)
-          draw((Double[]) a);
       } else if (cmp > 0)
         // current item is greater than v
         // put current item on gt side
         exch(a, i, gt--);
-      if (isDrawing)
-        draw((Double[]) a);
       else {
         // current item is equal to v
         // no exchanges needed
@@ -325,15 +314,14 @@ public class Sorter {
   }
 
   public void heap(Comparable[] a) {
+    determineDrawing(a);
     // heap-order input in two stages
 
     // heap construction
     int N = a.length;
-    for (int k = N/2; k >= 1; k--) {
+    for (int k = N / 2; k >= 1; k--) {
       sink(a, k - 1, N - 1);
     }
-
-    show(a);
 
     // sortdown
     while (N > 1) {
@@ -361,10 +349,13 @@ public class Sorter {
     }
   }
 
-  private static void exch(Comparable[] a, int i, int j) {
+  private void exch(Comparable[] a, int i, int j) {
     Comparable t = a[i];
     a[i] = a[j];
     a[j] = t;
+
+    if (isDrawing)
+      draw((Double[]) a);
   }
 
   private static boolean less(Comparable v, Comparable w) {
