@@ -50,7 +50,7 @@ public class Board {
 
     for (int j = 0; j < N; j++) {
       for (int k = 0; k < N; k++) {
-        results[i++] = " " + tiles[j][k] + " ";
+        results[i++] = String.format("%2d ", tiles[j][k]);
       }
       if (j < N - 1)
         results[i - 1] += "\n";
