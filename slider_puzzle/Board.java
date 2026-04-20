@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 import edu.princeton.cs.algs4.Stack;
 
 public class Board {
@@ -89,13 +91,7 @@ public class Board {
     if (this.dimension() != that.dimension())
       return false;
 
-    for (int y = 0; y < N; y++) {
-      for (int x = 0; x < N; x++) {
-        if (this.tiles[y][x] != that.tiles[y][x])
-          return false;
-      }
-    }
-    return true;
+    return Arrays.deepEquals(tiles, that.tiles);
   }
 
   public Iterable<Board> neighbors() {
