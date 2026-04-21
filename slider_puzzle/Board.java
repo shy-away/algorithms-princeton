@@ -3,7 +3,7 @@ import java.util.Arrays;
 import edu.princeton.cs.algs4.Stack;
 
 public class Board {
-  final int[][] tiles;
+  private final int[][] tiles;
   private final int N, hamming, manhattan;
   private int emptyRow, emptyCol;
 
@@ -105,9 +105,9 @@ public class Board {
       int adjacentRow = emptyRow + offsetRow[i];
       int adjacentCol = emptyCol + offsetCol[i];
 
-      if (adjacentRow < 0 || adjacentRow > N)
+      if (adjacentRow < 0 || adjacentRow >= N)
         continue;
-      if (adjacentCol < 0 || adjacentCol > N)
+      if (adjacentCol < 0 || adjacentCol >= N)
         continue;
 
       int adjacentTile = tiles[adjacentRow][adjacentCol];
