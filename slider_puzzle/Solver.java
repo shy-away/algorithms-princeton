@@ -8,23 +8,31 @@ public class Solver {
 
   private class SearchNode implements Comparable<SearchNode> {
     final Board board;
-    final int moves, priority;
+    final int moves, manhattan, priority;
     final SearchNode prev;
 
     public SearchNode(Board board, int moves, SearchNode prev) {
       this.board = board;
       this.moves = moves;
       this.prev = prev;
-      priority = moves + board.manhattan();
+      manhattan = board.manhattan();
+      priority = moves + manhattan;
     }
 
     public int compareTo(SearchNode that) {
-      int thisPriority = this.priority;
-      int thatPriority = that.priority;
+      int thisPriorityM = this.priority;
+      int thatPriorityM = that.priority;
 
-      if (thisPriority < thatPriority)
+      if (thisPriorityM < thatPriorityM)
         return -1;
-      else if (thisPriority > thatPriority)
+      else if (thisPriorityM > thatPriorityM)
+        return 1;
+
+      int thisManhattan = this.manhattan;
+      int thatManhattan = that.manhattan;
+      if (thisManhattan < thatManhattan)
+        return -1;
+      else if (thisManhattan > thatManhattan)
         return 1;
       return 0;
     }
@@ -42,6 +50,9 @@ public class Solver {
     pqTwin.insert(minTwin);
 
     while (!min.board.isGoal() && !minTwin.board.isGoal()) {
+      min = pq.delMin();
+      minTwin = pqTwin.delMin();
+
       for (Board neighbor : min.board.neighbors()) {
         if (min.prev != null && min.prev.board.equals(neighbor))
           continue;
@@ -53,9 +64,6 @@ public class Solver {
           continue;
         pqTwin.insert(new SearchNode(neighbor, minTwin.moves + 1, minTwin));
       }
-
-      min = pq.delMin();
-      minTwin = pqTwin.delMin();
     }
 
     if (!min.board.isGoal()) {

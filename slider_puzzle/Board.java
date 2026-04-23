@@ -3,7 +3,7 @@ import java.util.Arrays;
 import edu.princeton.cs.algs4.Stack;
 
 public class Board {
-  private final int[][] tiles;
+  private final char[] tiles;
   private final int N, hamming, manhattan;
   private int emptyRow, emptyCol;
 
@@ -11,15 +11,22 @@ public class Board {
     // for this assignment, tiles is 2d array representing n-by-n grid
     // values are 0 to n^2-1, and 2 leq n lt 128 is assumed
     // 0 is the blank square
-    this.tiles = tiles;
+
     N = tiles.length;
+    
+    // convert input 2d int array into 1d char array
+    char[] tempTiles = new char[N * N];
+    for (int i = 0; i < tempTiles.length; i++) {
+      tempTiles[i] = (char) tiles[i / N][i % N];
+    }
+    this.tiles = tempTiles;
 
     // precalculate hamming and manhattan distances
     int runningHamming = 0;
     int runningManhattan = 0;
     for (int row = 0; row < N; row++) {
       for (int col = 0; col < N; col++) {
-        int currentTile = tiles[row][col];
+        int currentTile = getTile(row, col);
         // record position of empty tile
         if (currentTile == 0) {
           emptyRow = row;
@@ -44,6 +51,10 @@ public class Board {
     manhattan = runningManhattan;
   }
 
+  private int getTile(int row, int col) {
+    return (int) tiles[(row * N) + col];
+  }
+
   @Override
   public String toString() {
     String[] results = new String[N * N + 1];
@@ -52,7 +63,7 @@ public class Board {
 
     for (int j = 0; j < N; j++) {
       for (int k = 0; k < N; k++) {
-        results[i++] = String.format("%2d ", tiles[j][k]);
+        results[i++] = String.format("%2d ", getTile(j, k));
       }
       if (j < N - 1)
         results[i - 1] += "\n";
@@ -91,7 +102,7 @@ public class Board {
     if (this.dimension() != that.dimension())
       return false;
 
-    return Arrays.deepEquals(tiles, that.tiles);
+    return Arrays.equals(tiles, that.tiles);
   }
 
   public Iterable<Board> neighbors() {
@@ -110,13 +121,12 @@ public class Board {
       if (adjacentCol < 0 || adjacentCol >= N)
         continue;
 
-      int adjacentTile = tiles[adjacentRow][adjacentCol];
-
+      int adjacentTile = getTile(adjacentRow, adjacentCol);
       int[][] neighborTiles = new int[N][N];
 
       for (int row = 0; row < N; row++) {
         for (int col = 0; col < N; col++) {
-          int currentTile = tiles[row][col];
+          int currentTile = getTile(row, col);
           if (currentTile == 0) {
             neighborTiles[row][col] = adjacentTile;
           } else if (currentTile == adjacentTile) {
@@ -153,11 +163,11 @@ public class Board {
     for (int row = 0; row < N; row++) {
       for (int col = 0; col < N; col++) {
         if (row == swapSecondRow && col == swapSecondCol) {
-          neighborTiles[row][col] = tiles[swapFirstRow][swapFirstCol];
+          neighborTiles[row][col] = getTile(swapFirstRow, swapFirstCol);
         } else if (row == swapFirstRow && col == swapFirstCol) {
-          neighborTiles[row][col] = tiles[swapSecondRow][swapSecondCol];
+          neighborTiles[row][col] = getTile(swapSecondRow, swapSecondCol);
         } else {
-          neighborTiles[row][col] = tiles[row][col];
+          neighborTiles[row][col] = getTile(row, col);
         }
       }
     }
