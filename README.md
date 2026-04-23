@@ -165,17 +165,17 @@ My code fulfills 100% of the testing requirements. See the [specification](https
 
 `Point.java` defines a `Point` data type. Some of its methods are provided by Princeton, but three methods use my own implementations.
 
-* `compareTo(Point that)` allows `Point`s to be compared. Each y-coordinate is compared, using the x-coordinate to break ties. This method allows `Point` to implement `Comparable`.
-* `slopeTo(Point that)` calculates the slope between two points. If the points are horizontal, the slope is `+0.0`; if the points are vertical, the slope is `Double.POSITIVE_INFINITY`; if the points are identical, the slope is `Double.NEGATIVE_INFINITY`.
-* `slopeOrder()` returns a `Comparator<Point>` such that it orders points by the slope they make _with the calling point_. For example, imagine three points `(2, 2)`, `(3, 1)`, and `(3, 3)`. If the latter two points were to be sorted by `new Point(2, 2).slopeOrder()`, the result would be `[(3, 3), (3, 1)]`, since the slope from `(2, 2)` to `(3, 3)` is greater than the slope from `(2, 2)` to `(3, 1)`.
+- `compareTo(Point that)` allows `Point`s to be compared. Each y-coordinate is compared, using the x-coordinate to break ties. This method allows `Point` to implement `Comparable`.
+- `slopeTo(Point that)` calculates the slope between two points. If the points are horizontal, the slope is `+0.0`; if the points are vertical, the slope is `Double.POSITIVE_INFINITY`; if the points are identical, the slope is `Double.NEGATIVE_INFINITY`.
+- `slopeOrder()` returns a `Comparator<Point>` such that it orders points by the slope they make _with the calling point_. For example, imagine three points `(2, 2)`, `(3, 1)`, and `(3, 3)`. If the latter two points were to be sorted by `new Point(2, 2).slopeOrder()`, the result would be `[(3, 3), (3, 1)]`, since the slope from `(2, 2)` to `(3, 3)` is greater than the slope from `(2, 2)` to `(3, 1)`.
 
 ### [BruteCollinearPoints.java](collinear_points/BruteCollinearPoints.java)
 
 `BruteCollinearPoints.java` finds all sets of four or more collinear points using a brute-force searching algorithm. It examines all possible 4-point tuples in the input and determines whether they are collinear.
 
-* `BruteCollinearPoints(Point[] points)` runs the searching algorithm and stores all found segments.
-* `segments()` returns (a copy of) all found segments.
-* `numberOfSegments()` simply returns how many segments were found.
+- `BruteCollinearPoints(Point[] points)` runs the searching algorithm and stores all found segments.
+- `segments()` returns (a copy of) all found segments.
+- `numberOfSegments()` simply returns how many segments were found.
 
 Despite some minor optimizations, the core structure is four nested loops. Therefore, the overall time complexity is $O(n^4)$. Additionally, this algorithm is unable to find line segments containing _more_ than four points.
 
@@ -185,9 +185,9 @@ Despite some minor optimizations, the core structure is four nested loops. There
 
 In terms of its API, it is essentially identical:
 
-* `FastCollinearPoints(Point[] points)` runs the searching algorithm and stores all found segments.
-* `segments()` returns (a copy of) all found segments.
-* `numberOfSegments()` simply returns how many segments were found.
+- `FastCollinearPoints(Point[] points)` runs the searching algorithm and stores all found segments.
+- `segments()` returns (a copy of) all found segments.
+- `numberOfSegments()` simply returns how many segments were found.
 
 The magic is that the searching algorithm uses multiple sorts to accomplish its task in $O(n^2\log n)$ time!
 
@@ -204,7 +204,7 @@ Not only is this algorithm much faster than the brute-force method, it also supp
 The picture at the beginning of this section was obtained using this command:
 
 ```
-$ ./demo.sh collinear_points/CollinearPointsClient.java collinear_points/input10000.txt 
+$ ./demo.sh collinear_points/CollinearPointsClient.java collinear_points/input10000.txt
 35 segment(s) found in 17.437 seconds
 (1930, 8070) -> (26781, 8070)
 (351, 20127) -> (31354, 20127)
@@ -212,7 +212,129 @@ $ ./demo.sh collinear_points/CollinearPointsClient.java collinear_points/input10
 (12581, 659) -> (12581, 12555)
 (225, 9391) -> (27077, 9391)
 ```
+
 ...and so on. There are many other test files to try.
+
+## 8-Puzzle
+
+![Eight puzzle.](docs/8puzzle.png)
+
+```
+$ ./demo.sh slider_puzzle/Solver.java slider_puzzle/puzzle3x3-03.txt
+Minimum number of moves = 3
+3
+ 1  2  3
+ 0  4  5
+ 7  8  6
+3
+ 1  2  3
+ 4  0  5
+ 7  8  6
+3
+ 1  2  3
+ 4  5  0
+ 7  8  6
+3
+ 1  2  3
+ 4  5  6
+ 7  8  0
+```
+
+An 8-puzzle is a puzzle with a 3-by-3 grid of tiles, numbered one to eight. A blank space is left so that the tiles can slide around. See the [booksite](https://coursera.cs.princeton.edu/algs4/assignments/8puzzle/specification.php) for an interactive example.
+
+What is the _fastest_ solution to any given puzzle? Can the method be generalized to slider puzzles of any size?
+
+My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/8puzzle/specification.php) for more details.
+
+### [Board.java](slider_puzzle/Board.java)
+
+First, `Board.java` models the puzzle board as an immutable ADT.
+
+- The constructor `Board(int[][] tiles)` builds a Board from a 2d integer array of tiles. The input is assumed to be error-free, i.e. the inner arrays are all the same length as the outer array, and all the tiles that need to be in the input are in fact already there, e.g. a 3-by-3 puzzle has tiles 1 to 8. The blank space is represented with a 0. Additionally, a Board can be of any size _n_ where $2 \leq n \lt 128$. **Note:** The constructor does _not_ assume the input is _solvable_.
+- `dimension()` returns the size of the board, e.g. for a 3-by-3 board, `dimension()` returns 3.
+- The `toString()` overrides the default to provide a more useful look at a Board. The `dimension()` of the Board is given, followed by all the tiles of the board, with newlines to make the tiles appear in a grid when printed to stdout.
+- `hamming()` and `manhattan()` are heuristics to determine roughly how close the board is to the goal state. The Hamming distance is defined as the number of tiles that are out of place; the Manhattan distance is defined as the _sum of the distances_ of the tiles that are out of place. See the [booksite](https://coursera.cs.princeton.edu/algs4/assignments/8puzzle/specification.php) for more details. **Note:** These heuristics are precalculated in the constructor, so the `hamming()` and `manhattan()` methods themselves are very fast.
+- `isGoal()` determines whether this Board is in a solved state. (It simply checks whether the Hamming distance is 0.)
+- `equals(Object o)` overrides the default to compare two Boards by size and content, i.e. if the two Boards are the same size and have the same tiles in the same places, they're equal.
+- `neighbors()` returns an `Iterable<Board>` (internally a `Stack<Board>`) containing all Boards that can be found by moving one tile on the current Board. Essentially, making a move on a Board results in one of its `neighbors()`. A Board can have 2, 3, or 4 neighbors (depending on where the blank space is: corner, edge, or center respectively).
+- `twin()` creates a new Board exactly like the current Board, but with two tiles swapped. This method is ultimately used to determine whether the original Board is solvable. If a Board's `twin()` has a solution, then the original Board necesssarily does not.
+
+### [Solver.java](slider_puzzle/Solver.java)
+
+My `Solver.java` finds the solution (if it exists) for any input puzzle.
+
+- The constructor `Solver(Board initial)` runs the core A\* loop, as described below.
+- `isSolvable()` reports whether the input Board has a solution.
+- `moves()` reports the number of moves the solution takes, or -1 if no solution exists.
+- `solution()` returns an `Iterable<Board>` (internally a `Stack<Board>`) that contains all the Boards from the initial Board to the solved Board (or null if no solution exists).
+- `main()` creates a Board from an input file and runs `Solver()` on it, printing the number of moves the solution takes, as well as the actual `solution()` found (or "No solution possible"). **Note:** This method was taken directly from the [specification](https://coursera.cs.princeton.edu/algs4/assignments/8puzzle/specification.php).
+
+The core of this project is the [A\* algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm). Since finding a general solution for 8-puzzles is [NP-hard](https://aaai.org/papers/00168-AAAI86-027-finding-a-shortest-solution-for-the-n-x-n-extension-of-the-15-puzzle-is-intractable/), the best general method involves maintaining a tree of Boards, using a heuristic to determine which Boards to investigate further.
+
+Internally, `Solver.java` uses a private class `SearchNode implements Comparable<SearchNode>` to wrap individual Boards and link them together into an in-memory tree. SearchNodes are compared based on their _priority_, which is the Manhattan distance plus the number of moves a SearchNode has taken from the initial Board given to the `Solver`.
+
+The core A\* loop finds the bottom node of the search tree with the highest (i.e. numerically least) priority. It then adds that Board's `neighbors()` to the search tree (as new SearchNodes). To efficiently accomplish this task (and to relate this problem to sorting), the A\* loop maintains a minimum priority queue of all the bottom nodes to efficiently select the highest-priority node in amortized $O(\lg n)$ time for each operation. The exact class used is Princeton's `MinPQ`, which internally uses a resizing array in heap order.
+
+To determine whether the given input is solvable, the A\* algorithm is actually run for both the input Board _and its `twin()`_, in lockstep (updating the input and twin SearchNode trees in the same loop). If the twin Board has a solution, the original input Board must be unsolvable.
+
+I've included Princeton's provided test files. The names of the test files correspond to the number of moves required to solve them, so my `Solver` should output the same number as listed in the filename. The Princeton-provided [`PuzzleChecker.java`](slider_puzzle/PuzzleChecker.java) uses an instance of my `Solver` to verify the number of moves my `Solver` reports in the minimum solution.
+
+```
+$ ./demo.sh slider_puzzle/PuzzleChecker.java slider_puzzle/puzzle17.txt
+slider_puzzle/puzzle17.txt: 17
+```
+
+To see the actual solution for any input puzzle, simply supply the input directly to `Solver.java`.
+
+```
+$ ./demo.sh slider_puzzle/Solver.java slider_puzzle/puzzle01.txt
+Minimum number of moves = 1
+2
+ 1  0
+ 3  2
+2
+ 1  2
+ 3  0
+```
+
+In case you feel like testing your computer's hardware, you can try some of the larger puzzles with longer solutions. Keep in mind that the SearchNode tree and the `MinPQ`s grow roughly exponentially compared to the number of moves required to find the solution, so don't be surprised if it takes a while!
+
+```
+$ ./demo.sh slider_puzzle/Solver.java slider_puzzle/puzzle35.txt
+Minimum number of moves = 35
+4
+ 2  6  7  3
+ 5 13  4 11
+10  0  1 15
+ 9 14 12  8
+4
+ 2  6  7  3
+ 5  0  4 11
+10 13  1 15
+ 9 14 12  8
+4
+ 2  6  7  3
+ 5  4  0 11
+10 13  1 15
+ 9 14 12  8
+```
+
+...and so on until...
+
+```
+4
+ 1  2  3  4
+ 5  6  7  8
+ 9 10 11  0
+13 14 15 12
+4
+ 1  2  3  4
+ 5  6  7  8
+ 9 10 11 12
+13 14 15  0
+```
+
+...the solution is reached!
 
 # Chapter Exercises & Problems
 
