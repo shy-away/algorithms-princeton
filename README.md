@@ -642,3 +642,7 @@ For 200 random Doubles
 ```
 ./demo.sh ch2_sorting/DisplaySorts.java 50 selection
 ```
+
+### MaxPQ
+
+`MaxPQ.java` is an implementation of a maximum priority queue, which keeps an array in heap order to efficiently provide the maximum element in the queue. It's mostly retyped from the book, with the optimization that it uses a resizing array.
