@@ -646,3 +646,29 @@ For 200 random Doubles
 ### MaxPQ
 
 `MaxPQ.java` is an implementation of a maximum priority queue, which keeps an array in heap order to efficiently provide the maximum element in the queue. It's mostly retyped from the book, with the optimization that it uses a resizing array.
+
+## Chapter 3: Searching
+
+### Symbol Tables
+
+#### BinarySearchST
+
+`BinarySearchST.java` uses resizing arrays of keys and values to construct a symbol table. It's implemented as `BinarySearchST<Key extends Comparable<Key>, Value>`, so any comparable can be used as a key type. It implements all the methods listed for a generic ordered symbol table, as defined in the book:
+
+* The constructor `BinarySearchST()` optionally accepts a capacity.
+* `put(Key key, Value val)` adds a key/value pair to the symbol table.
+* `get(Key key)` retreives the associated value of a key (or null if not in the table).
+* `delete(Key key)` deletes the key and its associated value from the table.
+* `contains(Key key)` reports whether the table contains the given key.
+* `isEmpty()` reports whether the table is empty.
+* `size()` returns the number of symbols in the table.
+* `min()` returns the minimum element of the table.
+* `max()` returns the maximum element of the table.
+* `floor(Key key)` returns the largest key that's less than or equal to the given key.
+* `ceiling(Key key)` returns the smallest key that's greater than or equal to the given key.
+* `rank(Key key)` returns the number of keys strictly less than the given key. This is where the binary search is actually implemented, and I chose to implement it recursively. Additionally, each call to `rank()` is cached, so that if successive `rank()` calls use the same key, the binary search doesn't have to be performed repeatedly. **Note:** The only two methods that change the underlying arrays, `put()` and `delete()`, internally call `rank()`, so the cache will never be stale.
+* `select(int k)` retreives the key of rank `k`. If `k` is out of bounds, `select()` throws an IllegalArgumentException.
+* `deleteMin()` deletes the minimum key and its associated value.
+* `deleteMax()` deletes the maximum key and its associated value.
+* `size(Key lo, Key hi)` returns the number of keys from `lo` to `hi` (both inclusive).
+* `keys()` returns an `Iterable<Key>` of the keys in the symbol table, *in sorted order*. Optionally, a subset of keys can be returned using `keys(Key lo, Key hi)`.
