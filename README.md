@@ -655,20 +655,40 @@ For 200 random Doubles
 
 `BinarySearchST.java` uses resizing arrays of keys and values to construct a symbol table. It's implemented as `BinarySearchST<Key extends Comparable<Key>, Value>`, so any comparable can be used as a key type. It implements all the methods listed for a generic ordered symbol table, as defined in the book:
 
-* The constructor `BinarySearchST()` optionally accepts a capacity.
-* `put(Key key, Value val)` adds a key/value pair to the symbol table.
-* `get(Key key)` retreives the associated value of a key (or null if not in the table).
-* `delete(Key key)` deletes the key and its associated value from the table.
-* `contains(Key key)` reports whether the table contains the given key.
-* `isEmpty()` reports whether the table is empty.
-* `size()` returns the number of symbols in the table.
-* `min()` returns the minimum element of the table.
-* `max()` returns the maximum element of the table.
-* `floor(Key key)` returns the largest key that's less than or equal to the given key.
-* `ceiling(Key key)` returns the smallest key that's greater than or equal to the given key.
-* `rank(Key key)` returns the number of keys strictly less than the given key. This is where the binary search is actually implemented, and I chose to implement it recursively. Additionally, each call to `rank()` is cached, so that if successive `rank()` calls use the same key, the binary search doesn't have to be performed repeatedly. **Note:** The only two methods that change the underlying arrays, `put()` and `delete()`, internally call `rank()`, so the cache will never be stale.
-* `select(int k)` retreives the key of rank `k`. If `k` is out of bounds, `select()` throws an IllegalArgumentException.
-* `deleteMin()` deletes the minimum key and its associated value.
-* `deleteMax()` deletes the maximum key and its associated value.
-* `size(Key lo, Key hi)` returns the number of keys from `lo` to `hi` (both inclusive).
-* `keys()` returns an `Iterable<Key>` of the keys in the symbol table, *in sorted order*. Optionally, a subset of keys can be returned using `keys(Key lo, Key hi)`.
+- The constructor `BinarySearchST()` optionally accepts a capacity.
+- `put(Key key, Value val)` adds a key/value pair to the symbol table.
+- `get(Key key)` retreives the associated value of a key (or null if not in the table).
+- `delete(Key key)` deletes the key and its associated value from the table.
+- `contains(Key key)` reports whether the table contains the given key.
+- `isEmpty()` reports whether the table is empty.
+- `size()` returns the number of symbols in the table.
+- `min()` returns the minimum element of the table.
+- `max()` returns the maximum element of the table.
+- `floor(Key key)` returns the largest key that's less than or equal to the given key.
+- `ceiling(Key key)` returns the smallest key that's greater than or equal to the given key.
+- `rank(Key key)` returns the number of keys strictly less than the given key. This is where the binary search is actually implemented, and I chose to implement it recursively. Additionally, each call to `rank()` is cached, so that if successive `rank()` calls use the same key, the binary search doesn't have to be performed repeatedly. **Note:** The only two methods that change the underlying arrays, `put()` and `delete()`, internally call `rank()`, so the cache will never be stale.
+- `select(int k)` retreives the key of rank `k`. If `k` is out of bounds, `select()` throws an IllegalArgumentException.
+- `deleteMin()` deletes the minimum key and its associated value.
+- `deleteMax()` deletes the maximum key and its associated value.
+- `size(Key lo, Key hi)` returns the number of keys from `lo` to `hi` (both inclusive).
+- `keys()` returns an `Iterable<Key>` of the keys in the symbol table, _in sorted order_. Optionally, a subset of keys can be returned using `keys(Key lo, Key hi)`.
+
+#### FrequencyCounter
+
+`FrequencyCounter.java` is just a client of `BinarySearchST`, and its code is taken directly from the [booksite](https://algs4.cs.princeton.edu/31elementary/FrequencyCounter.java.html) (linked from [this page](https://algs4.cs.princeton.edu/31elementary/)) with very minor modifications. It counts the number of words with more than a specified number of letters. It accomplishes this by storing each word as a symbol in the table, and then tracking the number of times each word occurs as the associated value. Additionally, it reports the number of total words in the input, as well as the number of distinct words (using the number of keys in the symbol table).
+
+```
+$ ./demo.sh ch3_searching/symbol_tables/FrequencyCounter.java 5 < ch3_searching/symbol_tables/tale.txt
+which 376
+distinct = 17641
+words    = 55801
+```
+
+The booksite suggests using text from the Leipzig Corpora, but the text file they provide is truly gargantuan (124MB!). [Here it is](https://algs4.cs.princeton.edu/31elementary/leipzig1M.txt) if you'd like to try `FrequencyCounter` on something that large!
+
+```
+$ ./demo.sh ch3_searching/symbol_tables/FrequencyCounter.java 12 < ch3_searching/symbol_tables/leipzig1M.txt
+international 5214
+distinct = 79900
+words    = 493299
+```
