@@ -692,3 +692,9 @@ international 5214
 distinct = 79900
 words    = 493299
 ```
+
+### Binary Search Trees
+
+#### BST
+
+`BST.java` is mostly retyped from the book, to solidify my understanding of recursively traversing a binary tree. I simply wrote some unit tests to make sure my retyping didn't introduce any bugs.
