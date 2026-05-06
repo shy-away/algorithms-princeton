@@ -1,8 +1,11 @@
 package ch3_searching.balanced_search_trees;
 
+import java.awt.Color;
+
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdRandom;
 
 /**
@@ -748,6 +751,135 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       result += toString(x.left, currentHeight + 1);
 
     return result;
+  }
+
+  /**
+   * Draws the red-black BST using default colors (red for red nodes, black for
+   * black nodes).
+   * <br>
+   * The tree is drawn using the full unit square.
+   */
+  public void draw() {
+    draw(StdDraw.RED, StdDraw.BLACK);
+  }
+
+  /**
+   * Draws the red-black BST with specified colors for red and black nodes.
+   * <br>
+   * The tree is drawn using the full unit square.
+   * 
+   * @param redNodeColor   the color to use for red nodes
+   * @param blackNodeColor the color to use for black nodes
+   */
+  public void draw(Color redNodeColor, Color blackNodeColor) {
+    if (root == null)
+      return;
+
+    // determine scaling values
+    int numKeys = 0;
+    for (Key key : keys()) {
+      numKeys++;
+    }
+    double xInc = 1.0 / (double) numKeys;
+    double yInc = 1.0 / (double) maxHeight(root);
+
+    class DepthRankNode {
+      private final Node node;
+      private final int depth, rank;
+
+      public DepthRankNode(Node node, int depth, int rank) {
+        this.node = node;
+        this.depth = depth;
+        this.rank = rank;
+      }
+    }
+
+    Stack<DepthRankNode> stack = new Stack<>();
+    Node currNode = root;
+    DepthRankNode currDepthRankNode = null;
+    int currDepth = 0, currRank = rank(root.key);
+    double currX, currY;
+
+    while (currNode != null || !stack.isEmpty()) {
+      if (currNode != null) {
+        currDepth++;
+        currRank = rank(currNode.key);
+
+        stack.push(new DepthRankNode(currNode, currDepth, currRank));
+
+        currNode = currNode.left;
+      } else {
+        currDepthRankNode = stack.pop();
+        currNode = currDepthRankNode.node;
+        currDepth = currDepthRankNode.depth;
+        currRank = currDepthRankNode.rank;
+
+        currY = 1.0 - (currDepth - 1) * yInc;
+        currX = currRank * xInc;
+
+        if (currNode.left != null) {
+          StdDraw.setPenColor(isRed(currNode.left) ? redNodeColor : blackNodeColor);
+          StdDraw.setPenRadius(0.01);
+          StdDraw.line(currX, currY, currX - (xInc * (size(currNode.left.right) + 1)), currY - yInc);
+        }
+
+        if (currNode.right != null) {
+          StdDraw.setPenColor(isRed(currNode.right) ? redNodeColor : blackNodeColor);
+          StdDraw.setPenRadius(0.01);
+          StdDraw.line(currX, currY, currX + (xInc * (size(currNode.right.left) + 1)), currY - yInc);
+        }
+
+        StdDraw.setPenColor(isRed(currNode) ? redNodeColor : blackNodeColor);
+        StdDraw.setPenRadius(0.03);
+        StdDraw.point(currX, currY);
+
+        currNode = currNode.right;
+      }
+    }
+  }
+
+  /**
+   * Returns the maximum height of the BST.
+   * 
+   * @return the maximum height
+   */
+  public int maxHeight() {
+    return maxHeight(root);
+  }
+
+  /**
+   * Returns the maximum height of the subtree rooted at x.
+   * 
+   * @param x the root of the subtree
+   * @return the maximum height
+   */
+  private int maxHeight(Node x) {
+    if (x == null)
+      return 0;
+
+    return Math.max(maxHeight(x.left), maxHeight(x.right)) + 1;
+  }
+
+  /**
+   * Returns the average height of the BST.
+   * 
+   * @return the average height
+   */
+  public double avgHeight() {
+    return avgHeight(root);
+  }
+
+  /**
+   * Returns the average height of the subtree rooted at x.
+   * 
+   * @param x the root of the subtree
+   * @return the average height
+   */
+  private double avgHeight(Node x) {
+    if (x == null)
+      return 0;
+
+    return ((avgHeight(x.left) + avgHeight(x.right)) / 2) + 1;
   }
 
   /* Private BST + LLRB testing methods */
