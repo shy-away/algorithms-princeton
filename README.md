@@ -698,3 +698,32 @@ words    = 493299
 #### BST
 
 `BST.java` is mostly retyped from the book, to solidify my understanding of recursively traversing a binary tree. I simply wrote some unit tests to make sure my retyping didn't introduce any bugs.
+
+### Balanced Search Trees
+
+#### RedBlackBST
+
+`RedBlackBST.java` implements a left-leaning red-black BST. All methods that only search the tree (`get()`, `rank()`, etc.) are unchanged from `BST.java`.
+
+Some of the additional/modified methods are mainly copied from the book, but certainly with some modifications! The provided code from the book includes a few insidious bugs that I had to find and eliminate. In particular, the book has an incorrect conditional in its implementation of `moveRedRight()`. I'll consider it an unintended exercise in mastering red-black BST dynamics; it certainly helped me get a better picture of exactly how insertion and deletion work.
+
+I added some other methods of my own:
+
+- `toString()` prints the full tree to stdout. I used this to manually inspect the tree shape in the early stages of testing.
+- `maxHeight()` and `avgHeight()` find the current maximum height and average height of the tree, respectively.
+- `isBinaryTree()`, `isOrdered()`, and `noEqualKeys()` are certification methods that check the structure of the links of the tree (i.e. no cycles), check the BST ordering of the tree, and check that no keys are equivalent. These are combined to create `isBST()`.
+- `is23()` and `isBalanced()` are red-black BST certification methods that check the tree for 2-3 tree correctness (including checking that all red nodes/links are left-leaning), and check whether the tree has consistent black balance (the distance from the root to any null link will have the same number of black nodes). Combined with `isBST()`, these methods are used to create the all-in-one certification method `isLLRB()`.
+
+Lastly, I also developed `draw()` to display the tree!
+
+Since speed is a priority for some of these methods (and because I wanted to stretch myself), I implemented many of these methods iteratively rather than recursively. Since iteration sidesteps some of the overhead used by the call stack, iteration tends to be faster; but since it requires essentially simulating aspects of the call stack, it was tricker to figure out. But I did it!
+
+#### DrawLLRB
+
+`DrawLLRB.java` takes a number of points, and animates a left-leaning red-black BST (LLRB) growing to and shrinking from that number of points. If you ask me, a still picture doesn't capture how mesmerizing it is to watch.
+
+```
+./demo.sh ch3_searching/balanced_search_trees/DrawLLRB.java 100
+```
+
+![A still picture of an LLRB with 100 nodes, with statistics displayed in the top left corner.](docs/llrb_100.png)
