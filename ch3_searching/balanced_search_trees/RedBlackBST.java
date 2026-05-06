@@ -5,12 +5,23 @@ import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdRandom;
 
+/**
+ * A left-leaning red-black binary search tree implementation.
+ * <br>
+ * My implementation is based on the book's implementation, with some changes.
+ * 
+ * @param <Key>   the type of keys, must be comparable
+ * @param <Value> the type of values
+ */
 public class RedBlackBST<Key extends Comparable<Key>, Value> {
   private Node root;
 
   private static final boolean RED = true;
   private static final boolean BLACK = false;
 
+  /**
+   * Node in the red-black BST.
+   */
   private class Node {
     private Key key;
     private Value val;
@@ -18,6 +29,15 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     private int N;
     private boolean color;
 
+    /**
+     * Constructs a new node.
+     * 
+     * @param key   the key
+     * @param val   the value
+     * @param N     the subtree size
+     * @param color the color (<code>true</code> for red, <code>false</code> for
+     *              black)
+     */
     public Node(Key key, Value val, int N, boolean color) {
       this.key = key;
       this.val = val;
@@ -25,21 +45,43 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       this.color = color;
     }
 
+    /**
+     * Returns a string representation of the node.
+     * 
+     * @return string representation
+     */
     public String toString() {
       return (color ? "RED" : "BLK") + " " + key.toString() + ": " + val.toString();
     }
   }
 
+  /**
+   * Checks if a node is red.
+   * 
+   * @param x the node
+   * @return true if red, false otherwise
+   */
   private boolean isRed(Node x) {
     if (x == null)
       return false;
     return x.color;
   }
 
+  /**
+   * Returns the number of key-value pairs in the BST.
+   * 
+   * @return the size
+   */
   public int size() {
     return size(root);
   }
 
+  /**
+   * Returns the size of the subtree rooted at x.
+   * 
+   * @param x the root of the subtree
+   * @return the size
+   */
   private int size(Node x) {
     if (x == null)
       return 0;
@@ -47,11 +89,26 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       return x.N;
   }
 
+  /**
+   * Returns the value associated with the given key.
+   * 
+   * @param key the key
+   * @return the value, or null if not found
+   */
   public Value get(Key key) {
     return get(root, key);
   }
 
-  // Note: red-black BST uses exact same `get()` as regular BST.
+  /**
+   * Returns the value associated with the given key in the subtree rooted at x.
+   * <br>
+   * <strong>Note:</strong> Red-black BST uses exact same <code>get()</code> as a
+   * regular BST!
+   * 
+   * @param x   the root of the subtree
+   * @param key the key
+   * @return the value, or null if not found
+   */
   private Value get(Node x, Key key) {
     // base case: empty node
     if (x == null)
@@ -67,11 +124,25 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       return x.val; // current node matches key, so return value
   }
 
+  /**
+   * Inserts a key-value pair into the BST.
+   * 
+   * @param key the key
+   * @param val the value
+   */
   public void put(Key key, Value val) {
     root = put(root, key, val);
     root.color = BLACK; // red root would imply the root is a left child of a conceptual 3-node
   }
 
+  /**
+   * Inserts a key-value pair into the subtree rooted at h.
+   * 
+   * @param h   the root of the subtree
+   * @param key the key
+   * @param val the value
+   * @return the updated subtree root
+   */
   private Node put(Node h, Key key, Value val) {
     // base case: empty node
     if (h == null)
@@ -93,30 +164,58 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return balance(h);
   }
 
+  /**
+   * Returns the smallest key in the BST.
+   * 
+   * @return the smallest key, or null if empty
+   */
   public Key min() {
     if (root == null)
       return null;
     return min(root).key;
   }
 
+  /**
+   * Returns the node with the smallest key in the subtree rooted at x.
+   * 
+   * @param x the root of the subtree
+   * @return the node with the smallest key
+   */
   private Node min(Node x) {
     if (x.left == null)
       return x;
     return min(x.left);
   }
 
+  /**
+   * Returns the largest key in the BST.
+   * 
+   * @return the largest key, or null if empty
+   */
   public Key max() {
     if (root == null)
       return null;
     return max(root).key;
   }
 
+  /**
+   * Returns the node with the largest key in the subtree rooted at x.
+   * 
+   * @param x the root of the subtree
+   * @return the node with the largest key
+   */
   private Node max(Node x) {
     if (x.right == null)
       return x;
     return max(x.right);
   }
 
+  /**
+   * Returns the largest key less than or equal to the given key.
+   * 
+   * @param key the key
+   * @return the floor key, or null if none
+   */
   public Key floor(Key key) {
     Node x = floor(root, key);
     if (x == null)
@@ -124,6 +223,14 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return x.key;
   }
 
+  /**
+   * Returns the node with the largest key <= the given <code>key</code> in the
+   * subtree rooted at x.
+   * 
+   * @param x   the root of the subtree
+   * @param key the key
+   * @return the floor node, or null if none
+   */
   private Node floor(Node x, Key key) {
     // base case: empty node
     if (x == null)
@@ -148,6 +255,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       return x;
   }
 
+  /**
+   * Returns the smallest key greater than or equal to the given key.
+   * 
+   * @param key the key
+   * @return the ceiling key, or null if none
+   */
   public Key ceiling(Key key) {
     Node x = ceiling(root, key);
     if (x == null)
@@ -155,6 +268,14 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return x.key;
   }
 
+  /**
+   * Returns the node with the smallest key >= the given <code>key</code> in the
+   * subtree rooted at x.
+   * 
+   * @param x   the root of the subtree
+   * @param key the key
+   * @return the ceiling node, or null if none
+   */
   private Node ceiling(Node x, Key key) {
     // base case: empty node
     if (x == null)
@@ -179,6 +300,13 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       return x;
   }
 
+  /**
+   * Returns the key of rank k (0-based).
+   * 
+   * @param k the rank
+   * @return the key of rank k
+   * @throws IllegalArgumentException if k is out of bounds
+   */
   public Key select(int k) {
     Node result = select(root, k);
     if (result == null)
@@ -186,6 +314,13 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return result.key;
   }
 
+  /**
+   * Returns the node of rank k in the subtree rooted at x.
+   * 
+   * @param x the root of the subtree
+   * @param k the rank
+   * @return the node of rank k, or null if none
+   */
   private Node select(Node x, int k) {
     // base case: empty node
     if (x == null)
@@ -201,11 +336,27 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       return x;
   }
 
+  /**
+   * Returns the number of keys strictly less than the given key.
+   * <br>
+   * <strong>Note:</strong> The rank of any <code>key</code> is
+   * defined as the number of keys less than <code>key</code> in
+   * <code>compareTo()</code> order.
+   * 
+   * @param key the key
+   * @return the rank
+   */
   public int rank(Key key) {
     return rank(key, root);
   }
 
-  // Note: rank is the number of elements strictly less than the given key.
+  /**
+   * Returns the rank of key in the subtree rooted at x.
+   * 
+   * @param key the key
+   * @param x   the root of the subtree
+   * @return the rank
+   */
   private int rank(Key key, Node x) {
     // base case: empty node
     if (x == null)
@@ -227,12 +378,17 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       return size(x.left);
   }
 
+  /**
+   * Eliminates temporary 4-nodes, shifts red links to be left-leaning, and
+   * recalculates the size of the given node.
+   * 
+   * @param h the root of the subtree
+   * @return the balanced subtree root
+   */
   private Node balance(Node h) {
-    // helper method to ensure left-leaning red links
     if (isRed(h.right))
       h = rotateLeft(h);
 
-    // update colors and sizes, moving "up"
     if (isRed(h.right) && !isRed(h.left))
       h = rotateLeft(h);
     if (isRed(h.left) && isRed(h.left.left))
@@ -241,9 +397,16 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       flipColors(h);
 
     h.N = size(h.left) + size(h.right) + 1;
+
     return h;
   }
 
+  /**
+   * Rotates the subtree rooted at h to the left.
+   * 
+   * @param h the root of the subtree
+   * @return the rotated subtree root
+   */
   private Node rotateLeft(Node h) {
     // rearrange nodes
     Node x = h.right; // x will become the parent node
@@ -261,6 +424,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return x;
   }
 
+  /**
+   * Rotates the subtree rooted at h to the right.
+   * 
+   * @param h the root of the subtree
+   * @return the rotated subtree root
+   */
   private Node rotateRight(Node h) {
     Node x = h.left;
     h.left = x.right;
@@ -275,6 +444,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return x;
   }
 
+  /**
+   * Toggles the colors of the node and its children, based on the color of the
+   * given node.
+   * 
+   * @param h the node
+   */
   private void flipColors(Node h) {
     // toggle colors
     if (!isRed(h)) {
@@ -288,6 +463,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
   }
 
+  /**
+   * Moves a red node into the left subtree.
+   * 
+   * @param h the root of the subtree
+   * @return the updated subtree root
+   */
   private Node moveRedLeft(Node h) {
     // assuming h is red and h.left is a 2-node,
     // make h.left or one of its children red
@@ -303,6 +484,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return h;
   }
 
+  /**
+   * Moves a red node into the right subtree.
+   * 
+   * @param h the root of the subtree
+   * @return the updated subtree root
+   */
   private Node moveRedRight(Node h) {
     // assuming h is red and h.right is a 2-node,
     // make h.right or one of its children red
@@ -316,6 +503,9 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return h;
   }
 
+  /**
+   * Removes the smallest key from the BST.
+   */
   public void deleteMin() {
     if (root == null)
       return;
@@ -331,6 +521,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       root.color = BLACK;
   }
 
+  /**
+   * Removes the smallest key from the subtree rooted at h.
+   * 
+   * @param h the root of the subtree
+   * @return the updated subtree root
+   */
   private Node deleteMin(Node h) {
     if (h.left == null)
       return null;
@@ -345,6 +541,9 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return balance(h);
   }
 
+  /**
+   * Removes the largest key from the BST.
+   */
   public void deleteMax() {
     if (root == null)
       return;
@@ -360,6 +559,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       root.color = BLACK;
   }
 
+  /**
+   * Removes the largest key from the subtree rooted at h.
+   * 
+   * @param h the root of the subtree
+   * @return the updated subtree root
+   */
   private Node deleteMax(Node h) {
     // force all nodes along path to be red
     if (isRed(h.left))
@@ -379,6 +584,11 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return balance(h);
   }
 
+  /**
+   * Removes the specified key from the BST.
+   * 
+   * @param key the key to remove
+   */
   public void delete(Key key) {
     // null root OR key is not in tree
     if (root == null || get(key) == null)
@@ -395,6 +605,13 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       root.color = BLACK;
   }
 
+  /**
+   * Removes the specified key from the subtree rooted at h.
+   * 
+   * @param h   the root of the subtree
+   * @param key the key to remove
+   * @return the updated subtree root
+   */
   private Node delete(Node h, Key key) {
     // base case: empty node
     if (h == null)
@@ -443,16 +660,36 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return balance(h);
   }
 
+  /**
+   * Returns all keys in the BST in sorted order.
+   * 
+   * @return an iterable of all keys
+   */
   public Iterable<Key> keys() {
     return keys(min(), max());
   }
 
+  /**
+   * Returns all keys in the BST between lo and hi in sorted order.
+   * 
+   * @param lo the lowest key
+   * @param hi the highest key
+   * @return an iterable of keys in [lo, hi]
+   */
   public Iterable<Key> keys(Key lo, Key hi) {
     Queue<Key> queue = new Queue<>();
     keys(root, queue, lo, hi);
     return queue;
   }
 
+  /**
+   * Adds keys in the subtree rooted at x between lo and hi to the queue.
+   * 
+   * @param x     the root of the subtree
+   * @param queue the queue to add keys to
+   * @param lo    the lowest key
+   * @param hi    the highest key
+   */
   private void keys(Node x, Queue<Key> queue, Key lo, Key hi) {
     // base case: empty node
     if (x == null)
@@ -475,10 +712,22 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       keys(x.right, queue, lo, hi);
   }
 
+  /**
+   * Returns a string representation of the BST.
+   * 
+   * @return string representation
+   */
   public String toString() {
     return toString(root, 0);
   }
 
+  /**
+   * Returns a string representation of the subtree rooted at x.
+   * 
+   * @param x             the root of the subtree
+   * @param currentHeight the current height for indentation
+   * @return string representation
+   */
   private String toString(Node x, int currentHeight) {
     String tabs = "";
     for (int i = 0; i < currentHeight; i++) {
@@ -503,6 +752,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
 
   /* Private BST + LLRB testing methods */
 
+  /**
+   * Checks if the subtree satisfies the 2-3 tree property.
+   * 
+   * @param h the root of the subtree
+   * @return true if valid 2-3 tree
+   */
   private boolean is23(Node h) {
     if (h == null)
       return true;
@@ -513,6 +768,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
       return !isRed(h.left) && !isRed(h.right) && is23(h.left) && is23(h.right);
   }
 
+  /**
+   * Checks if the subtree is balanced.
+   * 
+   * @param h the root of the subtree
+   * @return true if balanced
+   */
   private boolean isBalanced(Node h) {
     if (h == null)
       return true;
@@ -561,6 +822,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return true;
   }
 
+  /**
+   * Checks if the subtree is a valid binary tree.
+   * 
+   * @param h the root of the subtree
+   * @return true if valid binary tree
+   */
   private boolean isBinaryTree(Node h) {
     if (h == null)
       return true;
@@ -582,6 +849,20 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return numNodes == h.N;
   }
 
+  /**
+   * Checks the subtree for three properties:
+   * <ul>
+   * <li>all keys are between <code>min</code> and <code>max</code></li>
+   * <li><code>min</code> and <code>max</code> are in fact the minimum and maximum
+   * keys, respectively</li>
+   * <li>the BST ordering property actually holds for all keys</li>
+   * </ul>
+   * 
+   * @param h   the root of the subtree
+   * @param min the minimum key
+   * @param max the maximum key
+   * @return true if ordered
+   */
   private boolean isOrdered(Node h, Key min, Key max) {
     if (h == null)
       return true;
@@ -627,6 +908,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return true;
   }
 
+  /**
+   * Checks if the subtree has no equal keys.
+   * 
+   * @param h the root of the subtree
+   * @return true if no duplicates
+   */
   private boolean noEqualKeys(Node h) {
     if (h == null)
       return true;
@@ -652,14 +939,35 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     return true;
   }
 
+  /**
+   * Checks if the subtree is a valid BST.
+   * 
+   * @param h   the root of the subtree
+   * @param min the minimum key
+   * @param max the maximum key
+   * @return true if valid BST
+   */
   private boolean isBST(Node h, Key min, Key max) {
     return isBinaryTree(h) && isOrdered(h, min, max) && noEqualKeys(h);
   }
 
+  /**
+   * Checks if the subtree is a valid left-leaning red-black BST.
+   * 
+   * @param h   the root of the subtree
+   * @param min the minimum key
+   * @param max the maximum key
+   * @return true if valid LLRB
+   */
   private boolean isLLRB(Node h, Key min, Key max) {
     return isBST(h, min, max) && is23(h) && isBalanced(h);
   }
 
+  /**
+   * Unit tests the RedBlackBST data type.
+   * 
+   * @param args the command-line arguments
+   */
   public static void main(String[] args) {
     RedBlackBST<Integer, String> st = new RedBlackBST<>();
     boolean hasErred;
