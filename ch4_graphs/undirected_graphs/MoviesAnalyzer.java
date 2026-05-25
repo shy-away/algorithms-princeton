@@ -32,7 +32,7 @@ public class MoviesAnalyzer {
       }
     }
 
-    System.out.println("Found largest component");
+    // System.out.println("Found largest component");
 
     // create new subgraph of largest component
     int[] subgraphVertexNameMap = new int[G.V()];
@@ -57,7 +57,7 @@ public class MoviesAnalyzer {
       }
     }
 
-    System.out.println("Created subgraph");
+    // System.out.println("Created subgraph");
 
     GraphProperties props = new GraphProperties(sG);
 
@@ -70,7 +70,7 @@ public class MoviesAnalyzer {
     System.out.println("Largest component stats:");
     System.out.println("Diameter: " + props.diameter());
     System.out.println("Radius: " + props.radius());
-    System.out.println("Center: " + props.center());
+    System.out.println("Center: " + props.center() + " (" + sg.name(props.center()) + ")");
     System.out.println("Girth: " + props.girth());
 
     System.out.println();
