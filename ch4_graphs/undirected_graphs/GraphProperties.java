@@ -3,7 +3,7 @@ package ch4_graphs.undirected_graphs;
 import edu.princeton.cs.algs4.In;
 
 public class GraphProperties {
-  private int diameter, radius, center;
+  private int diameter, radius, center, girth;
   private int[] eccentricity;
 
   /**
@@ -13,10 +13,17 @@ public class GraphProperties {
    * @param G The graph to analyze
    */
   public GraphProperties(Graph G) {
+    if (G == null || G.V() == 0)
+      throw new IllegalArgumentException();
+
     eccentricity = new int[G.V()];
     diameter = 0;
     radius = Integer.MAX_VALUE;
     // center will be initialized in search loop
+    girth = Integer.MAX_VALUE;
+
+    // determine ahead of time if the graph has any cycle
+    boolean hasCycle = new CycleBFS(G, 0).hasCycle();
 
     // run BFS from each vertex
     for (int v = 0; v < G.V(); v++) {
@@ -41,6 +48,14 @@ public class GraphProperties {
       if (maxDist < radius) {
         radius = maxDist;
         center = v;
+      }
+
+      // is the cycle from current vertex the shortest cycle?
+      if (hasCycle) {
+        CycleBFS vc = new CycleBFS(G, v);
+        if (vc.hasCycle()) {
+          girth = Math.min(girth, vc.length());
+        }
       }
     }
   }
@@ -86,6 +101,15 @@ public class GraphProperties {
     return center;
   }
 
+  /**
+   * The girth of a graph is the length of its shortest cycle.
+   * 
+   * @return The length of the graph's shortest cycle
+   */
+  public int girth() {
+    return girth;
+  }
+
   public static void main(String[] args) {
     Graph G = new Graph(new In(args[0]));
     GraphProperties props = new GraphProperties(G);
@@ -103,5 +127,6 @@ public class GraphProperties {
     System.out.println("Diameter: " + props.diameter());
     System.out.println("Radius: " + props.radius());
     System.out.println("Center: " + props.center());
+    System.out.println("Girth: " + props.girth());
   }
 }
