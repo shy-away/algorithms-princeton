@@ -353,6 +353,7 @@ First, the brute-force method. `PointSET.java` uses a `SET` (Princeton's version
 A custom tree structure in `KdTree.java` allows for much faster implementations.
 
 A `Node` in my `KdTree` stores a point (`Point2D`, another Princeton type) and points to its two children, as usual. However, it also contains two other pieces of data:
+
 1. Each node has a flag for whether to compare other nodes to it by x-coordinate or by y-coordinate. This allows the creation of a 2d-tree structure where levels of the tree _alternate_ how they compare. This is easier seen than explained; check the booksite for illustrations, or play with the provided `KdTreeVisualizer.java` (click to create points).
 2. Each node stores its own rectangle (`RectHV`, another Princeton type) representing where all of its children reside. The root node stores a rectangle of the entire unit square; its left child stores the rectangle to the _left_ of the root (since the root compares by x-coordinate), `root.left.right` would store a rectangle _left_ of the root and _above_ `root.left` (since `root.left` would compare by y-coordinate), and so on.
 
@@ -801,4 +802,118 @@ Warlike
   MARTIN
 MARTIN
   Warlike
+```
+
+## Chapter 4: Graphs
+
+### Undirected Graphs
+
+#### Graph
+
+An ADT to represent graphs. It's mostly copied from the book, except for custom validation in `addEdge()` to ensure that no graph has parallel edges or self-loops.
+
+#### DepthFirstSearch (and TestSearch)
+
+Given a graph and a starting vertex, `DepthFirstSearch.java` runs a recursive DFS algorithm to determine which points are connected to the starting point. `TestSearch.java` accepts the name of a graph file and a starting vertex, and for each vertex in the graph determines whether it is connected to the starting vertex.
+
+#### DepthFirstPaths, BreadthFirstPaths (and TestPaths)
+
+Given a graph and a starting vertex, `DepthFirstPaths.java` and `BreadthFirstPaths.java` use DFS and BFS respectively to find a path from the starting vertex to all connected vertices. Clients can then fetch the vertices on the path that the search found. `TestSearch.java` accepts the name of a graph file and a starting vertex, and for each vertex in the graph displays a path to it from the starting vertex (using BFS to get the shortest paths). These are all primarily retyped from the book, except for the `distTo()` method in `BreadthFirstPaths.java` which is fully mine.
+
+#### CC (and TestCC)
+
+`CC.java` analyzes a Graph to identify the connected components (abbreviated CC) in it. It's mainly retyped from the book, with the modification that it uses iterative DFS instead of recursive DFS to avoid stack overflow for large graphs. `TestCC.java` accepts the name of a graph file and finds the number of components in it, displaying all vertices in each component.
+
+#### SymbolGraph (and TestSymbolGraph)
+
+`SymbolGraph.java` is an ADT that associates the integer names of Graph vertices with symbols (strings). `TestSymbolGraph.java` accepts a graph file and a delimiter, creates a SymbolGraph, and enters a loop to accept the name of any vertex and print its adjacent vertices. Both are largely copied from the book.
+
+```
+$ ./demo.sh ch4_graphs/undirected_graphs/TestSymbolGraph.java movies.txt "/"
+Symbol graph constructed. Enter a symbol to find its adjacent vertices. Ctrl+C to exit.
+Se7en (1995)
+        Burke, Beverly
+        Jennings, Dominique
+        Paltrow, Gwyneth
+        Mueller, Cat
+        Reinhardt, Sarah Hale
+        Tyson, Pamala
+        Wagner, Emily
+        Flanagan, Rachel (I)
+```
+
+And so on.
+
+**Note:** The symbol name must match exactly as it appears in the file. For example, using `movies.txt`, entering "Se7en" wouldn't work because the full symbol name is "Se7en (1995)".
+
+#### DegreesOfSeparation
+
+Accepts a graph file, a delimiter, and the name of a starting vertex, and uses BFS to determine the shortest path from the starting vertex to any given vertex. This is primarily copied from the book.
+
+The book suggests that this can be used to play the "Kevin Bacon" game. Starting from Bacon, everyone who was in a movie with Bacon has a Kevin Bacon number of 1. Anyone who was in a movie with someone who has a Kevin Bacon number of 1 in turn has a Kevin Bacon number of 2, etc.
+
+```
+$ ./demo.sh ch4_graphs/undirected_graphs/DegreesOfSeparation.java movies.txt "/" "Bacon, Kevin"
+Symbol graph constructed. Enter a symbol to find its adjacent vertices. Ctrl+C to exit.
+DeGeneres, Ellen
+        Bacon, Kevin
+        Trapped (2002)
+        Vince, Pruitt Taylor
+        Doctor Dolittle (1998)
+        DeGeneres, Ellen
+```
+
+Ellen DeGeneres has a Kevin Bacon number of 2. According to the dataset, Kevin Bacon was in _Trapped_ with Pruitt Taylor Vince, who was in _Doctor Dolittle_ with Ellen DeGeneres.
+
+#### GraphProperties
+
+Calculates a few stats of a (fully connected) graph. Each vertex has an eccentricity (the shortest path to the farthest vertex, i.e. the last point to be examined in BFS), and the overall graph has a diameter (the largest eccentricity), a radius (the smallest eccentricity), at least one center (a vertex whose eccentricity is the radius), and a girth (the number of vertices in the smallest cycle). I created a custom test file `tinyGcon.txt` to test this.
+
+```
+$ ./demo.sh ch4_graphs/undirected_graphs/GraphProperties.java tinyGcon.txt
+Graph:
+5 vertices, 6 edges
+0: 2 1
+1: 2 3 0
+2: 4 3 1 0
+3: 2 1
+4: 2
+
+
+Eccentricity of all points:
+0: 2
+1: 2
+2: 1
+3: 2
+4: 2
+
+Diameter: 2
+Radius: 1
+Center: 2
+Girth: 3
+```
+
+#### CycleBFS
+
+Given a graph and a starting vertex, determines whether the given graph has a cycle, and if so, the length of the cycle including the distance from the starting vertex to the nearest vertex in the cycle (which may be 0 if the starting vertex is in the cycle). The book has a DFS version of Cycle which I based this implementation on. I created this originally to use in `GraphProperties.java`, but it ended up making it even slower than it already is. So, I left this on the cutting room floor, so to speak.
+
+#### MoviesAnalyzer
+
+`MoviesAnalyzer.java` uses `SymbolGraph`, `CC`, and `GraphProperties` to find some statistics about `movies.txt`, which contains a list of 4000+ movies and their respective actors. Each movie may have dozens of actors, and the graph ends up having over 100k vertices (a vertex may be either a movie title or an actor name).
+
+Given this size, the program really does take its time (**_~17 minutes on my machine!_**), because `GraphProperties` runs a full BFS for each vertex. Additionally, this is why I refactored `CC.java` to use an iterative approach to avoid overflowing the call stack.
+
+```
+$ ./demo.sh ch4_graphs/undirected_graphs/MoviesAnalyzer.java 
+Number of connected components: 33
+Size of largest component: 118774
+Number of components with fewer than ten vertices: 5
+
+Largest component stats:
+Diameter: 18
+Radius: 9
+Center: 2057 (51st State, The (2001))
+Girth: 4
+
+Contains 'Bacon, Kevin'? true
 ```
