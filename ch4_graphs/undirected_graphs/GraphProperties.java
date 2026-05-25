@@ -1,8 +1,11 @@
 package ch4_graphs.undirected_graphs;
 
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Queue;
 
 public class GraphProperties {
+  private boolean[] marked;
+  private int[] prevVx, distTo;
   private int diameter, radius, center, girth;
   private int[] eccentricity;
 
@@ -16,31 +19,61 @@ public class GraphProperties {
     if (G == null || G.V() == 0)
       throw new IllegalArgumentException();
 
+    // graph must be connected
+    if (new CC(G).count() > 1)
+      throw new IllegalArgumentException("Graph must be connected");
+
     eccentricity = new int[G.V()];
+
     diameter = 0;
     radius = Integer.MAX_VALUE;
     // center will be initialized in search loop
     girth = Integer.MAX_VALUE;
 
-    // determine ahead of time if the graph has any cycle
-    boolean hasCycle = new CycleBFS(G, 0).hasCycle();
-
     // run BFS from each vertex
     for (int v = 0; v < G.V(); v++) {
-      BreadthFirstPaths bfp = new BreadthFirstPaths(G, v);
+      // System.out.println(v);
+      marked = new boolean[G.V()];
+      prevVx = new int[G.V()];
+      distTo = new int[G.V()];
 
-      // of all connected vertices, get distance to the furthest
-      int maxDist = 0;
-      for (int w = 0; w < G.V(); w++) {
-        if (bfp.hasPathTo(w)) {
-          maxDist = Math.max(bfp.distTo(w), maxDist);
+      int cycleLength = Integer.MAX_VALUE;
+      boolean foundCycle = false;
+
+      Queue<Integer> queue = new Queue<>();
+
+      marked[v] = true;
+      prevVx[v] = -1;
+      distTo[v] = 0;
+      queue.enqueue(v);
+      int currVx = v;
+
+      while (!queue.isEmpty()) {
+        currVx = queue.dequeue();
+
+        for (int nextVx : G.adj(currVx)) {
+          if (!marked[nextVx]) {
+            prevVx[nextVx] = currVx;
+            distTo[nextVx] = distTo[currVx] + 1;
+
+            marked[nextVx] = true;
+            queue.enqueue(nextVx);
+          } else if (nextVx != prevVx[currVx] && !foundCycle) {
+            // cycle found
+            cycleLength = distTo[currVx] + distTo[nextVx] + 1;
+            foundCycle = true;
+          }
         }
       }
+
+      // currVx is the last vertex dequeued, which must be
+      // furthest from the start because of BFS mechanics
+      int maxDist = distTo[currVx];
 
       // set eccentricity
       eccentricity[v] = maxDist;
 
-      // is this a diameter?
+      // is this the diameter?
       if (maxDist > diameter)
         diameter = maxDist;
 
@@ -50,13 +83,9 @@ public class GraphProperties {
         center = v;
       }
 
-      // is the cycle from current vertex the shortest cycle?
-      if (hasCycle) {
-        CycleBFS vc = new CycleBFS(G, v);
-        if (vc.hasCycle()) {
-          girth = Math.min(girth, vc.length());
-        }
-      }
+      // is the found cycle length lower than the previously recorded girth?
+      if (cycleLength < girth)
+        girth = cycleLength;
     }
   }
 
