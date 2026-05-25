@@ -1,5 +1,7 @@
 package ch4_graphs.undirected_graphs;
 
+import edu.princeton.cs.algs4.Stack;
+
 // stands for "connected components"
 public class CC {
   private boolean[] marked;
@@ -14,12 +16,21 @@ public class CC {
     for (int s = 0; s < G.V(); s++) {
       // process all unmarked vertices connected to s using DFS
       if (!marked[s]) {
-        dfs(G, s); // mark and ID all connected components
+        dfsIterative(G, s); // mark and ID all connected components
         count++; // increment count for new component ID
       }
     }
   }
 
+  /**
+   * Run DFS to mark and ID all connected vertices.
+   * 
+   * @deprecated Causes stack overflow for large graphs. Use
+   *             {@link #dfsIterative()} instead.
+   * @param G The graph to search
+   * @param v The vertex to search from
+   */
+  @Deprecated
   private void dfs(Graph G, int v) {
     // mark vertex
     marked[v] = true;
@@ -35,6 +46,30 @@ public class CC {
     }
   }
 
+  /**
+   * Run iterative DFS to mark and ID all connected vertices.
+   * 
+   * @param G The graph to search
+   * @param v The vertex to search from
+   */
+  private void dfsIterative(Graph G, int v) {
+    Stack<Integer> stack = new Stack<>();
+    
+    stack.push(v);
+
+    while (!stack.isEmpty()) {
+      int currVx = stack.pop();
+
+      marked[currVx] = true;
+      id[currVx] = count;
+
+      for (int nextVx : G.adj(currVx)) {
+        if (!marked[nextVx])
+          stack.push(nextVx);
+      }
+    }
+  }
+
   public boolean connected(int v, int w) {
     return id[v] == id[w];
   }
@@ -43,7 +78,7 @@ public class CC {
     return count;
   }
 
-  int id(int v) {
+  public int id(int v) {
     return id[v];
   }
 }
