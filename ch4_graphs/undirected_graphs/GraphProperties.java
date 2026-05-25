@@ -6,6 +6,12 @@ public class GraphProperties {
   private int diameter, radius, center;
   private int[] eccentricity;
 
+  /**
+   * Calculate properties of the graph. Constructor is O(<code>G.V()</code>^2),
+   * all other operations are constant time.
+   * 
+   * @param G The graph to analyze
+   */
   public GraphProperties(Graph G) {
     eccentricity = new int[G.V()];
     diameter = 0;
@@ -39,18 +45,43 @@ public class GraphProperties {
     }
   }
 
+  /**
+   * Get the eccentricity of the given vertex, defined as the shortest path to the
+   * furthest connected vertex.
+   * 
+   * @param v A vertex in the graph
+   * @return The eccentricity of the vertex
+   */
   public int eccentricity(int v) {
     return eccentricity[v];
   }
 
+  /**
+   * Get the diameter of the graph, defined as the maximum eccentricity of any
+   * vertex.
+   * 
+   * @return The diameter of the graph
+   */
   public int diameter() {
     return diameter;
   }
 
+  /**
+   * Get the radius of the graph, defined as the minimum eccentricity of any
+   * vertex.
+   * 
+   * @return The radius of the graph
+   */
   public int radius() {
     return radius;
   }
 
+  /**
+   * Get the center of the graph, which may be any vertex whose eccentricity is
+   * the radius.
+   * 
+   * @return A vertex whose eccentricity is the radius
+   */
   public int center() {
     return center;
   }
