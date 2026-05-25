@@ -38,6 +38,16 @@ public class Graph {
   }
 
   public void addEdge(int v, int w) {
+    // no self-loops
+    if (v == w)
+      return;
+
+    // no parallel edges
+    for (int x : adj(v)) {
+      if (x == w)
+        return;
+    }
+
     adj[v].add(w);
     adj[w].add(v);
     E++;
