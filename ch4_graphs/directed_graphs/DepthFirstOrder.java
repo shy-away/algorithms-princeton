@@ -13,10 +13,6 @@ public class DepthFirstOrder {
   private Stack<Integer> reversePost;
 
   public DepthFirstOrder(Digraph G) {
-    DirectedCycle dc = new DirectedCycle(G);
-    if (dc.hasCycle())
-      throw new IllegalArgumentException("Input digraph must be acyclic");
-
     marked = new boolean[G.V()];
 
     pre = new Queue<>();
