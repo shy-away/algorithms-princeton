@@ -343,7 +343,7 @@ public class SAP {
       for (int vx1 = 0; vx1 < G.V(); vx1++) {
         for (int vx2 = 0; vx2 < G.V(); vx2++) {
           if (vx2 == vx1)
-            break;
+            continue;
 
           // simple brute-force method to determine
           // SAP between vx1 and vx2 (if any exists)
