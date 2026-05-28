@@ -1,11 +1,11 @@
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.function.BiConsumer;
 
 import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.Queue;
-import edu.princeton.cs.algs4.StdRandom;
 
 public class SAP {
   private final Digraph G;
@@ -316,6 +316,8 @@ public class SAP {
 
     /* Random trials */
 
+    Random random = new Random(System.currentTimeMillis());
+
     int T = 100;
     int Tv = 50; // number of vertex set trials per trial
     int numVertices = 50;
@@ -330,8 +332,8 @@ public class SAP {
       G = new Digraph(numVertices);
 
       for (int j = 0; j < numEdges; j++) {
-        int vxFrom = StdRandom.uniformInt(numVertices);
-        int vxTo = StdRandom.uniformInt(numVertices);
+        int vxFrom = random.nextInt(numVertices);
+        int vxTo = random.nextInt(numVertices);
 
         if (vxFrom != vxTo)
           G.addEdge(vxFrom, vxTo);
@@ -374,10 +376,10 @@ public class SAP {
 
       // vertex sets
       for (int j = 0; j < Tv; j++) {
-        int a1 = vertices[StdRandom.uniformInt(vertices.length)];
-        int a2 = vertices[StdRandom.uniformInt(vertices.length)];
-        int b1 = vertices[StdRandom.uniformInt(vertices.length)];
-        int b2 = vertices[StdRandom.uniformInt(vertices.length)];
+        int a1 = vertices[random.nextInt(vertices.length)];
+        int a2 = vertices[random.nextInt(vertices.length)];
+        int b1 = vertices[random.nextInt(vertices.length)];
+        int b2 = vertices[random.nextInt(vertices.length)];
 
         Iterable<Integer> a = Arrays.asList(a1, a2);
         Iterable<Integer> b = Arrays.asList(b1, b2);
