@@ -147,11 +147,8 @@ public class SAP {
     validateNotNull(v);
     validateNotNull(w);
 
-    for (int x : v)
-      validateNotNull(x);
-
-    for (int x : w)
-      validateNotNull(x);
+    validateNoNullIntegers(v);
+    validateNoNullIntegers(w);
 
     ParallelBFSResults results = parallelBFS(v, w);
 
@@ -162,11 +159,8 @@ public class SAP {
     validateNotNull(v);
     validateNotNull(w);
 
-    for (int x : v)
-      validateNotNull(x);
-
-    for (int x : w)
-      validateNotNull(x);
+    validateNoNullIntegers(v);
+    validateNoNullIntegers(w);
 
     ParallelBFSResults results = parallelBFS(v, w);
 
@@ -176,6 +170,15 @@ public class SAP {
   private void validateNotNull(Object x) {
     if (x == null)
       throw new IllegalArgumentException();
+  }
+
+  private void validateNoNullIntegers(Iterable<Integer> iterable) {
+    try {
+      for (int i : iterable) {
+      }
+    } catch (NullPointerException npe) {
+      throw new IllegalArgumentException();
+    }
   }
 
   public static void main(String[] args) {
@@ -223,6 +226,38 @@ public class SAP {
     hasErred = false;
     try {
       sap.ancestor(null, Collections.singletonList(0));
+    } catch (IllegalArgumentException e) {
+      hasErred = true;
+    }
+    assert hasErred;
+
+    hasErred = false;
+    try {
+      sap.length(Arrays.asList(0, null), Arrays.asList(0, 0));
+    } catch (IllegalArgumentException e) {
+      hasErred = true;
+    }
+    assert hasErred;
+
+    hasErred = false;
+    try {
+      sap.length(Arrays.asList(0, 0), Arrays.asList(0, null));
+    } catch (IllegalArgumentException e) {
+      hasErred = true;
+    }
+    assert hasErred;
+
+    hasErred = false;
+    try {
+      sap.ancestor(Arrays.asList(0, null), Arrays.asList(0, 0));
+    } catch (IllegalArgumentException e) {
+      hasErred = true;
+    }
+    assert hasErred;
+
+    hasErred = false;
+    try {
+      sap.ancestor(Arrays.asList(0, 0), Arrays.asList(0, null));
     } catch (IllegalArgumentException e) {
       hasErred = true;
     }
