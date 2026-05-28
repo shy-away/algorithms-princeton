@@ -3,6 +3,7 @@ import java.util.HashSet;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.DirectedCycleX;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.ST;
 import edu.princeton.cs.algs4.Stack;
@@ -81,12 +82,20 @@ public class WordNet {
 
         // run DFS on all vertices to check that all vertices can reach the root
         Stack<Integer> stack = new Stack<>();
-        boolean[] marked;
+        final Queue<Integer> changed = new Queue<>();
+        final boolean[] marked = new boolean[G.V()];
+        final boolean[] hasPathToRoot = new boolean[G.V()];
+        final int[] prevVx = new int[G.V()];
         int count = 1;
 
         for (int startVx = 0; startVx < G.V(); startVx++) {
-          marked = new boolean[G.V()];
+          // skip vertices that are known to reach root
+          if (hasPathToRoot[startVx])
+            continue;
+
           marked[startVx] = true;
+          prevVx[startVx] = -1;
+          changed.enqueue(startVx);
           stack.push(startVx);
 
           while (!stack.isEmpty()) {
@@ -94,13 +103,26 @@ public class WordNet {
 
             for (int nextVx : G.adj(currVx)) {
               if (nextVx == candidateRoot) {
-                // current starting vertex can reach root
-                // increment counter and force new DFS
-                count++;
-                stack = new Stack<>();
+                // count all vertices along path (that aren't already known to reach root)
+                for (int x = currVx; x >= 0; x = prevVx[x]) {
+                  if (!hasPathToRoot[x]) {
+                    hasPathToRoot[x] = true;
+                    count++;
+                  }
+                }
+
+                // reset search
+                while (!changed.isEmpty()) {
+                  int changedVx = changed.dequeue();
+                  marked[changedVx] = false;
+                  prevVx[changedVx] = 0;
+                }
+                stack = new Stack<>(); // marginally faster than emptying preexisting stack
                 break;
               } else if (!marked[nextVx]) {
                 marked[nextVx] = true;
+                prevVx[nextVx] = currVx;
+                changed.enqueue(nextVx);
                 stack.push(nextVx);
               }
             }
