@@ -379,6 +379,125 @@ Princeton offers a few programs for generating input points and visualizing `ran
 $ ./demo.sh kdtree/RangeSearchVisualizer.java kdtree/input500.txt
 ```
 
+## WordNet
+
+![Word net.](docs/logo.png)
+
+```
+$ ./demo.sh wordnet/TestWordNet.java 
+WordNet created. Enter two words to see WordNet statistics. Ctrl+D to exit.
+carrot stick
+length: 6, ancestor: 'food solid_food'
+worm bird
+length: 5, ancestor: 'animal animate_being beast brute creature fauna'
+```
+
+Words can be grouped into sets of synonyms. These synonym sets, or _synsets_, can be related to each other; the synset `{cat, feline}` may be a type of `{animal, beast}`, for example. The latter synset would be considered a _hypernym_ of the former.
+
+Given a comprehensive graph of synsets with hypernym relationships, what can be determined about any two words? Can the semantic difference between two words be quantified? What synset is most similar to both words?
+
+My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/wordnet/specification.php) for more details.
+
+### [SAP.java](wordnet/SAP.java)
+
+The digraph-processing core of this project is this question: Given two points on a digraph, what is the _shortest ancestral path_ (or SAP) between them?
+
+Given two vertices $v$ and $w$, an _ancestral path_ is the combination of (1) a path from $v$ to some intermediate vertex $x$, and (2) a path from $w$ to the same intermediate vertex $x$. The _shortest_ ancestral path is such a path where the _sum_ of the distances $v \to x$ and $w \to x$ are minimized. The intermediate vertex $x$ would be the _shortest common ancestor_. See the [booksite](https://coursera.cs.princeton.edu/algs4/assignments/wordnet/specification.php) for further illustrations and explanations.
+
+`SAP.java` is an immutable ADT that calculates shortest ancestral paths and a shortest common ancestor for any two vertices (there may be multiple valid SAPs of the same length, which would have different shortest common ancestors). It also can calculate such paths and ancestors for _sets_ (Java `Iterables`) of vertices, doing so in $O(V + E)$ linear time proportional to the number of vertices ($V$) plus the number of edges ($E$). This is accomplished by running _parallel_ directed breadth-first searches, i.e. instead of running a separate BFS for each vertex, the queue of vertices is initialized with _all starting vertices at once_, preventing quadratic time complexity.
+
+`SAP.java` contains unit tests, but [`TestSAP.java`](wordnet/TestSAP.java) is a test client (taken from the booksite) that creates a digraph from an input file, displays the constructed digraph, takes vertex numbers from stdin, and calculates SAP statistics for those vertices.
+
+```
+$ ./demo.sh wordnet/TestSAP.java wordnet/digraph9.txt
+9 vertices, 10 edges
+0: 6
+1: 3
+2:
+3: 4 2 0
+4: 1
+5: 8 4
+6: 3
+7: 6
+8:
+
+Enter two vertices to see SAP statistics. Ctrl+D to exit.
+1 6
+length = 2, ancestor = 3
+```
+
+In this graph, 3 is the shortest common ancestor between 1 and 6, because both vertices connect directly to 3 (using two edges, so the overall SAP length is two).
+
+### [WordNet.java](wordnet/WordNet.java)
+
+`WordNet.java` is tasked with supporting this API:
+
+- The constructor `WordNet(String synsets, String hypernyms)` accepts a synsets file and a hypernyms file, and creates all necessary data structures to support the other operations.
+- `nouns()` returns an `Iterable<String>` of all the nouns in the WordNet.
+- `isNoun(String word)` determines whether the given word is in the WordNet.
+- `distance(String nounA, String nounB)` calcluates the SAP between the two given WordNet nouns.
+- `sap(String nounA, String nounB)` find a shortest common ancestor between the two given WordNet nouns.
+
+_(For this project, "word" and "noun" are interchangeable. I feel the need to clarify this, as the booksite does not.)_
+
+**Synsets file.** A synsets file is a list of synsets in a comma-separated format, each of which has three fields like this:
+
+```
+473,tung_oil Chinese_wood_oil,a yellow oil obtained from the seeds of the tung tree
+```
+
+The first field is the line number on which the synset appears (0-indexed). _This serves as the synset ID._ The second field is the synset itself, which is space-delimited. The third field is the definition of the synset, which is not used in this project.
+
+**Hypernyms file.** The hypernyms file also contains comma-separated data, in lines of this format:
+
+```
+153,73705,35728,64486
+```
+
+As with synsets, the first field is the line number (0-indexed), but here it doubles as a synset ID. All later fields are also synset IDs, and the line overall will be interpreted as _edges in a digraph from the first ID to all later IDs_.
+
+The major task for `WordNet.java` is determining what data structures the constructor needs to create from these input files in order to support its API. A `HashSet<String>` easily supports `isNoun()`, simply by recording all nouns from the synsets file. Supporting `distance()` requires finding the synset ID(s) corresponding to any word -- and there may be multiple such IDs, since a word can appear in multiple synsets (because one word can have multiple definitions). `sap()` is even harder, because not only does it need to translate nouns into sets of synset IDs, but once the ID of the shortest common ancestor is found, it needs to be converted _back into a synset_.
+
+To do this, the constructor operates in three stages.
+
+1. **Build synset associations.** The constructor parses the synsets file line-by-line, and does three things on each line. It (1) associates the synset ID with its corresponding synset string, using a symbol table `synsetIdST`. Then it iterates through each noun in the synset, (2) putting each noun in the `HashSet` of nouns, and (3) storing each noun in another symbol table `nounSynsetIdsST` which maps nouns to _groups_ of synset IDs.
+2. **Build hypernym graph.** The constructor creates a `Digraph` using the number of synsets (`synsetIdST.size()`), effectively mapping synset IDs to vertices. Then it reads in the hypernyms file, creating edges as described above.
+3. **Validate hypernym graph.** The hypernym graph must be both _acyclic_ and _rooted_, i.e. there must be one vertex reachable by all others. Princeton offers a `DirectedCycleX` class to validate that the digraph is acyclic. As for validating rootedness, my original approach was to (1) validate that the digraph contains _exactly one_ vertex whose outdegree is 0, and (2) that this vertex can reach all other vertices in _the digraph's `reverse()`_. However, using `reverse()` is disallowed by Princeton's autograder. So instead, I tried running a directed DFS from all vertices to determine whether they could reach the root, using various optimizations to keep it fast. However, the autograder didn't like this approach either, since the digraph's `adj()` gets called too many times. With the gentle direction of a chatbot (which for this project I hadn't used up until this point), I realized that this DFS actually isn't necessary, though the reasons are complex. See my explanatory comment in [the file](wordnet/WordNet.java) for more info.
+
+And with that, the hard work is done and dusted! Everything else is easy.
+
+- `nouns()` returns the `HashSet` of nouns.
+- `isNoun()` just looks up the given string in the `HashSet` of nouns.
+- `distance()` fetches the synset ID groups for each noun from `nounSynsetIDsST`, uses an `SAP` to get the distance between the two groups of synsets, and returns the found distance.
+- `sap()` likewise fetches the synset ID groups for each noun from `nounSynsetIDsST` and uses an `SAP`, but it instead grabs the _ancestor vertex_, and uses the `synsetIdST` to translate the vertex name into a synset.
+
+I've created `TestWordNet.java` to play with these word associations. Give it a try!
+
+```
+$ ./demo.sh wordnet/TestWordNet.java 
+WordNet created. Enter two words to see WordNet statistics. Ctrl+D to exit.
+worm bird
+length: 5, ancestor: 'animal animate_being beast brute creature fauna'
+Black_Plague black_marlin
+length: 33, ancestor: 'entity'
+```
+
+### [Outcast.java](wordnet/Outcast.java)
+
+Given a group of words, which one is _least_ like the others? `Outcast.java` uses a `WordNet` to answer this question. For each noun, it sums the distances between itself and every other noun. The noun with the highest sum is the outcast. (`Outcast.java`'s `main()` method was provided by the booksite.)
+
+```
+$ more wordnet/outcast5.txt
+horse
+zebra
+cat
+bear
+table
+
+$ ./demo.sh wordnet/Outcast.java synsets.txt hypernyms.txt outcast5.txt
+outcast5.txt: table
+```
+
 # Chapter Exercises & Problems
 
 These are smaller projects from each chapter that I decided to do, for one reason or another. The `demo.sh` can run them all the same.
@@ -904,7 +1023,7 @@ Given a graph and a starting vertex, determines whether the given graph has a cy
 Given this size, the program really does take its time (**_~17 minutes on my machine!_**), because `GraphProperties` runs a full BFS for each vertex. Additionally, this is why I refactored `CC.java` to use an iterative approach to avoid overflowing the call stack.
 
 ```
-$ ./demo.sh ch4_graphs/undirected_graphs/MoviesAnalyzer.java 
+$ ./demo.sh ch4_graphs/undirected_graphs/MoviesAnalyzer.java
 Number of connected components: 33
 Size of largest component: 118774
 Number of components with fewer than ten vertices: 5
@@ -917,3 +1036,54 @@ Girth: 4
 
 Contains 'Bacon, Kevin'? true
 ```
+
+### Directed Graphs
+
+#### Digraph
+
+Simply a copy of what's listed in the book, although it is very similar to `Graph.java`. Whereas undirected graphs create an edge between two vertices by adding each vertex to the other's adjacency lists, a `Digraph` creates an edge from any vertex v to another vertex w by only putting w in v's adjacency list, thereby making w accessible from v but not the other way around. `Digraph` includes a method `reverse()`, which returns a new `Digraph` with all of its edges reversed.
+
+#### DirectedDFS
+
+Again copied from the book, and remarkably similar to its undirected counterpart `DepthFirstSearch.java`, with the exception that it includes a multi-source constructor.
+
+#### DirectedCycle
+
+Also copied from the book. Notably, a vertex-indexed boolean array is used to track what vertices are on the call stack at any given time. (Simply checking whether a vertex has been marked would be insufficient; a counterexample graph can be made such that there are two paths which intersect on a vertex but neither of which form a cycle.)
+
+#### DepthFirstOrder
+
+Copied from the book again. Uses a directed DFS with two queues and a stack to traverse the graph in preorder, postorder, and reverse postorder. (Unlike a BST, a graph has no inorder traversal.)
+
+#### SymbolDigraph
+
+Almost a perfect copy from `SymbolGraph`, only with all instances of `Graph` changed to `Digraph`.
+
+#### Topological
+
+Also taken from the book. Given a digraph, is it possible to _order_ the vertices such that all directed edges point to a vertex later in the order? If so, what would that order be? `Topological.java` does this using a `SymbolGraph` constructed from an input file. It checks whether the digraph has a cycle (in which case there is no possible topological order), and then determines the reverse postorder of those elements.
+
+I've included `jobs.txt`, which contains a list of courses and their prerequisites.
+
+```
+$ ./demo.sh ch4_graphs/directed_graphs/Topological.java jobs.txt "/"
+Calculus
+Linear Algebra
+Introduction to CS
+Advanced Programming
+Algorithms
+Theoretical CS
+Artificial Intelligence
+Robotics
+Machine Learning
+Neural Networks
+Databases
+Scientific Computing
+Computational Biology
+```
+
+#### KosarajuSCC
+
+Determining connectivity in an undirected graph is as simple as determining whether there is a path from any vertex to any other vertex. But the analogue in directed graphs is harder to determine: a digraph is _strongly_ connected if, for all vertex pairs v and w, there is both a path from v to w _and_ from w to v. The nature of digraphs means that the path in one direction need not be the same as the path in the other direction. But how can this graph property be checked in a reasonable amount of time?
+
+The Kosaraju algorithm solves this in three steps: (1) get the reverse of the digraph (reversing all edges), (2) get the reverse postorder of the inverted digraph, and finally (3) perform DFS on each vertex as would be done in an undirected graph, but _searching vertices in order of the reverse postorder of the inverted graph previously derived_. It's quite complicated to prove its correctness, and I can't say I understand it, but it's amazing that it works!
