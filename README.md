@@ -917,3 +917,54 @@ Girth: 4
 
 Contains 'Bacon, Kevin'? true
 ```
+
+### Directed Graphs
+
+#### Digraph
+
+Simply a copy of what's listed in the book, although it is very similar to `Graph.java`. Whereas undirected graphs create an edge between two vertices by adding each vertex to the other's adjacency lists, a `Digraph` creates an edge from any vertex v to another vertex w by only putting w in v's adjacency list, thereby making w accessible from v but not the other way around. `Digraph` includes a method `reverse()`, which returns a new `Digraph` with all of its edges reversed.
+
+#### DirectedDFS
+
+Again copied from the book, and remarkably similar to its undirected counterpart `DepthFirstSearch.java`, with the exception that it includes a multi-source constructor.
+
+#### DirectedCycle
+
+Also copied from the book. Notably, a vertex-indexed boolean array is used to track what vertices are on the call stack at any given time. (Simply checking whether a vertex has been marked would be insufficient; a counterexample graph can be made such that there are two paths which intersect on a vertex but neither of which form a cycle.)
+
+#### DepthFirstOrder
+
+Copied from the book again. Uses a directed DFS with two queues and a stack to traverse the graph in preorder, postorder, and reverse postorder. (Unlike a BST, a graph has no inorder traversal.)
+
+#### SymbolDigraph
+
+Almost a perfect copy from `SymbolGraph`, only with all instances of `Graph` changed to `Digraph`.
+
+#### Topological
+
+Also taken from the book. Given a digraph, is it possible to _order_ the vertices such that all directed edges point to a vertex later in the order? If so, what would that order be? `Topological.java` does this using a `SymbolGraph` constructed from an input file. It checks whether the digraph has a cycle (in which case there is no possible topological order), and then determines the reverse postorder of those elements.
+
+I've included `jobs.txt`, which contains a list of courses and their prerequisites.
+
+```
+$ ./demo.sh ch4_graphs/directed_graphs/Topological.java jobs.txt "/"
+Calculus
+Linear Algebra
+Introduction to CS
+Advanced Programming
+Algorithms
+Theoretical CS
+Artificial Intelligence
+Robotics
+Machine Learning
+Neural Networks
+Databases
+Scientific Computing
+Computational Biology
+```
+
+#### KosarajuSCC
+
+Determining connectivity in an undirected graph is as simple as determining whether there is a path from any vertex to any other vertex. But the analogue in directed graphs is harder to determine: a digraph is _strongly_ connected if, for all vertex pairs v and w, there is both a path from v to w _and_ from w to v. The nature of digraphs means that the path in one direction need not be the same as the path in the other direction. But how can this graph property be checked in a reasonable amount of time?
+
+The Kosaraju algorithm solves this in three steps: (1) get the reverse of the digraph (reversing all edges), (2) get the reverse postorder of the inverted digraph, and finally (3) perform DFS on each vertex as would be done in an undirected graph, but _searching vertices in order of the reverse postorder of the inverted graph previously derived_. It's quite complicated to prove its correctness, and I can't say I understand it, but it's amazing that it works!
