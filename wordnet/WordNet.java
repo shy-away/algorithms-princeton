@@ -1,14 +1,14 @@
 import java.util.HashSet;
 
+import edu.princeton.cs.algs4.Bag;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.DirectedCycleX;
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.ST;
 
 public class WordNet {
   private final HashSet<String> nounSet;
-  private final ST<String, SET<Integer>> nounSynsetIdsST;
+  private final ST<String, Bag<Integer>> nounSynsetIdsST;
   private final ST<Integer, String> synsetIdST;
   private final SAP sap;
 
@@ -37,10 +37,10 @@ public class WordNet {
         nounSet.add(noun); // maintain set of all nouns
 
         if (!nounSynsetIdsST.contains(noun)) {
-          SET<Integer> nounSynsetIdSET = new SET<>();
-          nounSynsetIdSET.add(synsetId);
+          Bag<Integer> nounSynsetIdBag = new Bag<>();
+          nounSynsetIdBag.add(synsetId);
 
-          nounSynsetIdsST.put(noun, nounSynsetIdSET);
+          nounSynsetIdsST.put(noun, nounSynsetIdBag);
         } else {
           nounSynsetIdsST.get(noun).add(synsetId);
         }
