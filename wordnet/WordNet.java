@@ -53,10 +53,14 @@ public class WordNet {
 
     In hypernymsIn = new In(hypernyms);
 
+    int countRoots = 0;
+
     while (hypernymsIn.hasNextLine()) {
       String[] idStrs = hypernymsIn.readLine().split(",");
 
       int fromVx = Integer.parseInt(idStrs[0]);
+
+      if (idStrs.length == 1) countRoots++;
 
       for (int i = 1; i < idStrs.length; i++) {
         int toVx = Integer.parseInt(idStrs[i]);
@@ -92,12 +96,6 @@ public class WordNet {
      * terminates elsewhere. But that other termination point would be another
      * vertex with an outdegree of 0 anyway.
      */
-    int countRoots = 0;
-    for (int v = 0; v < G.V(); v++) {
-      if (G.outdegree(v) == 0)
-        countRoots++;
-    }
-
     if (countRoots != 1)
       throw new IllegalArgumentException("Graph is not a rooted DAG");
 
