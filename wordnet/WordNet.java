@@ -3,10 +3,8 @@ import java.util.HashSet;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.DirectedCycleX;
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.ST;
-import edu.princeton.cs.algs4.Stack;
 
 public class WordNet {
   private final HashSet<String> nounSet;
@@ -70,73 +68,37 @@ public class WordNet {
 
     // validate the graph is acyclic
     if (new DirectedCycleX(G).hasCycle())
-      throw new IllegalArgumentException("Graph is not a rooted DAG");
+      throw new IllegalArgumentException("Graph contains a cycle");
 
     // validate the graph is rooted
-    // Note: a rooted DAG has exactly one vertex with an
-    // outdegree of 0, which every other vertex can reach
-    boolean foundCandidateRoot = false;
-    for (int candidateRoot = 0; candidateRoot < G.V(); candidateRoot++) {
-      if (G.outdegree(candidateRoot) == 0) {
-        foundCandidateRoot = true;
 
-        // run DFS on all vertices to check that all vertices can reach the root
-        Stack<Integer> stack = new Stack<>();
-        final Queue<Integer> changed = new Queue<>();
-        final boolean[] marked = new boolean[G.V()];
-        final boolean[] hasPathToRoot = new boolean[G.V()];
-        final int[] prevVx = new int[G.V()];
-        int count = 1;
-
-        for (int startVx = 0; startVx < G.V(); startVx++) {
-          // skip vertices that are known to reach root
-          if (hasPathToRoot[startVx])
-            continue;
-
-          marked[startVx] = true;
-          prevVx[startVx] = -1;
-          changed.enqueue(startVx);
-          stack.push(startVx);
-
-          while (!stack.isEmpty()) {
-            int currVx = stack.pop();
-
-            for (int nextVx : G.adj(currVx)) {
-              if (nextVx == candidateRoot) {
-                // count all vertices along path (that aren't already known to reach root)
-                for (int x = currVx; x >= 0; x = prevVx[x]) {
-                  if (!hasPathToRoot[x]) {
-                    hasPathToRoot[x] = true;
-                    count++;
-                  }
-                }
-
-                // reset search
-                while (!changed.isEmpty()) {
-                  int changedVx = changed.dequeue();
-                  marked[changedVx] = false;
-                  prevVx[changedVx] = 0;
-                }
-                stack = new Stack<>(); // marginally faster than emptying preexisting stack
-                break;
-              } else if (!marked[nextVx]) {
-                marked[nextVx] = true;
-                prevVx[nextVx] = currVx;
-                changed.enqueue(nextVx);
-                stack.push(nextVx);
-              }
-            }
-          }
-        }
-
-        if (count != G.V())
-          throw new IllegalArgumentException("Graph is not a rooted DAG");
-        else
-          break;
-      }
+    /*
+     * In a digraph, any path that terminates must terminate on a vertex with
+     * an outdegree of 0 (there's no vertex to travel to next).
+     * 
+     * An acyclic digraph (DAG) contains at least one such outdegree-0 vertex,
+     * otherwise no paths would exist that do not cycle. Every vertex would have
+     * another vertex that can be traveled to next.
+     * 
+     * A rooted DAG is a DAG where all paths terminate at the same outdegree-0
+     * vertex. If a DAG has multiple vertices with an outdegree of 0, then there are
+     * multiple places a path may terminate.
+     * 
+     * So, having validated that the hypernym graph G is acyclic, validating that
+     * there is only one outdegree-0 vertex is guaranteed to determine rootedness.
+     * 
+     * Notably, this implicitly checks reachability. If an outdegree-0 vertex is not
+     * reachable by some other vertex v, then there must be a path from v that
+     * terminates elsewhere. But that other termination point would be another
+     * vertex with an outdegree of 0 anyway.
+     */
+    int countRoots = 0;
+    for (int v = 0; v < G.V(); v++) {
+      if (G.outdegree(v) == 0)
+        countRoots++;
     }
 
-    if (!foundCandidateRoot)
+    if (countRoots != 1)
       throw new IllegalArgumentException("Graph is not a rooted DAG");
 
     sap = new SAP(G);
