@@ -11,7 +11,6 @@ public class WordNet {
   private final HashSet<String> nounSet;
   private final ST<String, SET<Integer>> nounSynsetIdsST;
   private final ST<Integer, String> synsetIdST;
-  private final Digraph G;
   private final SAP sap;
 
   public WordNet(String synsets, String hypernyms) {
@@ -51,7 +50,7 @@ public class WordNet {
 
     /* Build hypernym graph */
 
-    G = new Digraph(synsetIdST.size()); // use number of synset IDs
+    Digraph G = new Digraph(synsetIdST.size()); // use number of synset IDs
 
     In hypernymsIn = new In(hypernyms);
 
