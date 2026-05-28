@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -123,7 +124,7 @@ public class SAP {
     validateNotNull(v);
     validateNotNull(w);
 
-    ParallelBFSResults results = parallelBFS(Arrays.asList(v), Arrays.asList(w));
+    ParallelBFSResults results = parallelBFS(Collections.singletonList(v), Collections.singletonList(w));
 
     return results != null ? results.length : -1;
   }
@@ -132,7 +133,7 @@ public class SAP {
     validateNotNull(v);
     validateNotNull(w);
 
-    ParallelBFSResults results = parallelBFS(Arrays.asList(v), Arrays.asList(w));
+    ParallelBFSResults results = parallelBFS(Collections.singletonList(v), Collections.singletonList(w));
 
     return results != null ? results.ancestor : -1;
   }
@@ -192,7 +193,7 @@ public class SAP {
 
     hasErred = false;
     try {
-      sap.length(Arrays.asList(0), null);
+      sap.length(Collections.singletonList(0), null);
     } catch (IllegalArgumentException e) {
       hasErred = true;
     }
@@ -200,7 +201,7 @@ public class SAP {
 
     hasErred = false;
     try {
-      sap.length(null, Arrays.asList(0));
+      sap.length(null, Collections.singletonList(0));
     } catch (IllegalArgumentException e) {
       hasErred = true;
     }
@@ -208,7 +209,7 @@ public class SAP {
 
     hasErred = false;
     try {
-      sap.ancestor(Arrays.asList(0), null);
+      sap.ancestor(Collections.singletonList(0), null);
     } catch (IllegalArgumentException e) {
       hasErred = true;
     }
@@ -216,7 +217,7 @@ public class SAP {
 
     hasErred = false;
     try {
-      sap.ancestor(null, Arrays.asList(0));
+      sap.ancestor(null, Collections.singletonList(0));
     } catch (IllegalArgumentException e) {
       hasErred = true;
     }
@@ -229,8 +230,8 @@ public class SAP {
 
     assert sap.length(0, 0) == 0;
     assert sap.ancestor(0, 0) == 0;
-    assert sap.length(Arrays.asList(0), Arrays.asList(0)) == 0;
-    assert sap.ancestor(Arrays.asList(0), Arrays.asList(0)) == 0;
+    assert sap.length(Collections.singletonList(0), Collections.singletonList(0)) == 0;
+    assert sap.ancestor(Collections.singletonList(0), Collections.singletonList(0)) == 0;
 
     /* Two unconnected vertices */
 
@@ -239,11 +240,11 @@ public class SAP {
 
     assert sap.length(0, 1) == -1;
     assert sap.ancestor(0, 1) == -1;
-    assert sap.length(Arrays.asList(0), Arrays.asList(1)) == -1;
-    assert sap.ancestor(Arrays.asList(0), Arrays.asList(1)) == -1;
+    assert sap.length(Collections.singletonList(0), Collections.singletonList(1)) == -1;
+    assert sap.ancestor(Collections.singletonList(0), Collections.singletonList(1)) == -1;
 
-    assert sap.length(Arrays.asList(0, 1), Arrays.asList(1)) == 0;
-    assert sap.ancestor(Arrays.asList(0, 1), Arrays.asList(1)) == 1;
+    assert sap.length(Arrays.asList(0, 1), Collections.singletonList(1)) == 0;
+    assert sap.ancestor(Arrays.asList(0, 1), Collections.singletonList(1)) == 1;
 
     /* Two weakly connected vertices */
 
@@ -253,8 +254,8 @@ public class SAP {
 
     assert sap.length(0, 1) == 1;
     assert sap.ancestor(0, 1) == 1;
-    assert sap.length(Arrays.asList(0), Arrays.asList(1)) == 1;
-    assert sap.ancestor(Arrays.asList(0), Arrays.asList(1)) == 1;
+    assert sap.length(Collections.singletonList(0), Collections.singletonList(1)) == 1;
+    assert sap.ancestor(Collections.singletonList(0), Collections.singletonList(1)) == 1;
 
     /* Two strongly connected vertices */
 
@@ -265,8 +266,8 @@ public class SAP {
 
     assert sap.length(0, 1) == 1;
     assert sap.ancestor(0, 1) != -1;
-    assert sap.length(Arrays.asList(0), Arrays.asList(1)) == 1;
-    assert sap.ancestor(Arrays.asList(0), Arrays.asList(1)) != -1;
+    assert sap.length(Collections.singletonList(0), Collections.singletonList(1)) == 1;
+    assert sap.ancestor(Collections.singletonList(0), Collections.singletonList(1)) != -1;
 
     /* Three-vertex two-edge rooted DAG */
 
