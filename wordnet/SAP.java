@@ -41,6 +41,11 @@ public class SAP {
   }
 
   private ParallelBFSResults parallelBFS(Iterable<Integer> v, Iterable<Integer> w) {
+    // if either iterable is empty, there is no common ancestor
+    if (!v.iterator().hasNext() || !w.iterator().hasNext()) {
+      return new ParallelBFSResults(-1, -1);
+    }
+
     // if any vertex is in both iterables, the BFS can be skipped
     HashSet<Integer> set = new HashSet<>();
 
@@ -222,6 +227,11 @@ public class SAP {
       hasErred = true;
     }
     assert hasErred;
+
+    /* 0-length iterators */
+
+    assert sap.length(Arrays.asList(), Arrays.asList()) == -1;
+    assert sap.ancestor(Arrays.asList(), Arrays.asList()) == -1;
 
     /* Single vertex */
 
