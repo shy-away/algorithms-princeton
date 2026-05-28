@@ -2,10 +2,10 @@ import java.util.HashSet;
 
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.DirectedCycleX;
-import edu.princeton.cs.algs4.DirectedDFS;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.ST;
+import edu.princeton.cs.algs4.Stack;
 
 public class WordNet {
   private final HashSet<String> nounSet;
@@ -73,22 +73,48 @@ public class WordNet {
 
     // validate the graph is rooted
     // Note: a rooted DAG has exactly one vertex with an
-    // outdegree of 0, and every other vertex can reach it
-    boolean foundCandidate = false;
-    for (int v = 0; v < G.V(); v++) {
-      if (G.outdegree(v) == 0) {
-        foundCandidate = true;
+    // outdegree of 0, which every other vertex can reach
+    boolean foundCandidateRoot = false;
+    for (int candidateRoot = 0; candidateRoot < G.V(); candidateRoot++) {
+      if (G.outdegree(candidateRoot) == 0) {
+        foundCandidateRoot = true;
 
-        DirectedDFS dfs = new DirectedDFS(G.reverse(), v);
+        // run DFS on all vertices to check that all vertices can reach the root
+        Stack<Integer> stack = new Stack<>();
+        boolean[] marked;
+        int count = 1;
 
-        if (dfs.count() != G.V())
+        for (int startVx = 0; startVx < G.V(); startVx++) {
+          marked = new boolean[G.V()];
+          marked[startVx] = true;
+          stack.push(startVx);
+
+          while (!stack.isEmpty()) {
+            int currVx = stack.pop();
+
+            for (int nextVx : G.adj(currVx)) {
+              if (nextVx == candidateRoot) {
+                // current starting vertex can reach root
+                // increment counter and force new DFS
+                count++;
+                stack = new Stack<>();
+                break;
+              } else if (!marked[nextVx]) {
+                marked[nextVx] = true;
+                stack.push(nextVx);
+              }
+            }
+          }
+        }
+
+        if (count != G.V())
           throw new IllegalArgumentException("Graph is not a rooted DAG");
         else
           break;
       }
     }
 
-    if (!foundCandidate)
+    if (!foundCandidateRoot)
       throw new IllegalArgumentException("Graph is not a rooted DAG");
 
     sap = new SAP(G);
@@ -281,7 +307,9 @@ public class WordNet {
 
     /* Large WordNet */
 
-    W = new WordNet("synsets100-subgraph.txt", "hypernyms100-subgraph.txt"); // no errors in constructor
+    // no errors in constructors
+    W = new WordNet("synsets15.txt", "hypernyms15Tree.txt");
+    W = new WordNet("synsets100-subgraph.txt", "hypernyms100-subgraph.txt");
 
     /* Full WordNet */
 
