@@ -409,7 +409,7 @@ $ ./demo.sh kdtree/RangeSearchVisualizer.java kdtree/input500.txt
 <details>
 <summary><h2>WordNet</h2></summary>
 
-![Word net.](docs/logo.png)
+![Word net.](docs/wordnet.png)
 
 ```
 $ ./demo.sh wordnet/TestWordNet.java
