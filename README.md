@@ -535,9 +535,11 @@ outcast5.txt: table
 
 These are smaller projects from each chapter that I decided to do, for one reason or another. The `demo.sh` can run them all the same.
 
-## Chapter 1: Fundamentals
+<details>
+<summary><h2>Chapter 1: Fundamentals</h2></summary>
 
-### Basic Programming Model
+<details>
+<summary><h3>Basic Programming Model</h3></summary>
 
 #### BinarySearch
 
@@ -566,7 +568,10 @@ Some values to try:
 | 30 | 0.2 |
 | 200 | 0.01 |
 
-### Data Abstraction
+</details>
+
+<details>
+<summary><h3>Data Abstraction</h3></summary>
 
 #### Interval2DClient
 
@@ -595,7 +600,10 @@ As a bonus, my `Rational` ADT also controls for integer overflow and underflow.
 
 The `main` method of [`Rational.java`](./ch1_fundamentals/data_abstraction/Rational.java) includes assertions to test functionality; see that method for more details. (Using the demo script on `Rational.java` will produce no output, since all assertions pass.)
 
-### Bags, Queues, and Stacks
+</details>
+
+<details>
+<summary><h3>Bags, Queues, and Stacks</h3></summary>
 
 #### ResizingArrayStack, Stack, Queue, Bag
 
@@ -621,7 +629,10 @@ $ ./demo.sh ch1_fundamentals/bags_queues_stacks/Parentheses.java "[{}({}[])]"
 true
 ```
 
-### Analysis of Algorithms
+</details>
+
+<details>
+<summary><h3>Analysis of Algorithms</h3></summary>
 
 #### DoublingTest, ThreeSum
 
@@ -714,7 +725,10 @@ The problems are about dropping eggs from different floors of a building to dete
 
 - The purple lines are $O(\sqrt{F})$, also when given **_only two eggs._** Instead of using chunks of size $\sqrt{N}$, use chunks between _squares_! Starting at the bottom floor, move to the next square floor (0 &#8594; 1 &#8594; 4 &#8594; 9 etc.) until the first egg cracks. Then, move back to the previous square floor and search one floor at a time (ascending). As with the green lines, the ligher purple line represents the average number of throws per building size, and the darker purple points represent the average number of throws _depending on F_.
 
-### Case Study: Union-Find
+</details>
+
+<details>
+<summary><h3>Case Study: Union-Find</h3></summary>
 
 #### UF, QuickFindUF, QuickUnionUF, WeightedQuickUnionUF
 
@@ -792,7 +806,12 @@ Internally, `RandomGrid.java` has a static method `generate()` that actually doe
 
 `GridAnimation.java` takes a grid size N from stdin and draws random connections on an N-by-N grid, using a Union-find structure to check connectivity. Visually, this ensures the line never loops! It uses `generate()` from `RandomGrid.java` to create all of the connections.
 
-## Chapter 2: Sorting
+</details>
+
+</details>
+
+<details>
+<summary><h2>Chapter 2: Sorting</h2></summary>
 
 Instead of nesting programs in subdirectories for each chapter section, I'll organize this section by program. I did this because it makes more sense to put all the sorting algorithms in one Java program, since they all use the same `exch()` and `less()` methods, and will all be tested in similar ways.
 
@@ -842,9 +861,13 @@ For 200 random Doubles
 
 `MaxPQ.java` is an implementation of a maximum priority queue, which keeps an array in heap order to efficiently provide the maximum element in the queue. It's mostly retyped from the book, with the optimization that it uses a resizing array.
 
-## Chapter 3: Searching
+</details>
 
-### Symbol Tables
+<details>
+<summary><h2>Chapter 3: Searching</h2></summary>
+
+<details>
+<summary><h3>Symbol Tables</h3></summary>
 
 #### BinarySearchST
 
@@ -888,13 +911,19 @@ distinct = 79900
 words    = 493299
 ```
 
-### Binary Search Trees
+</details>
+
+<details>
+<summary><h3>Binary Search Trees</h3></summary>
 
 #### BST
 
 `BST.java` is mostly retyped from the book, to solidify my understanding of recursively traversing a binary tree. I simply wrote some unit tests to make sure my retyping didn't introduce any bugs.
 
-### Balanced Search Trees
+</details>
+
+<details>
+<summary><h3>Balanced Search Trees</h3></summary>
 
 #### RedBlackBST
 
@@ -923,7 +952,10 @@ Since speed is a priority for some of these methods (and because I wanted to str
 
 ![A still picture of an LLRB with 100 nodes, with statistics displayed in the top left corner.](docs/llrb_100.png)
 
-### Hash Tables
+</details>
+
+<details>
+<summary><h3>Hash Tables</h3></summary>
 
 #### SeparateChainingHashST
 
@@ -933,7 +965,10 @@ Since speed is a priority for some of these methods (and because I wanted to str
 
 `LinearProbingHashST.java` is almost completely retyped from the book, with the exception of using an `int[] primes` to optimize resizing (which was copied to `SeparateChainingHashST.java`).
 
-### Searching Applications
+</details>
+
+<details>
+<summary><h3>Searching Applications</h3></summary>
 
 #### LookupIndex
 
@@ -956,9 +991,15 @@ MARTIN
   Warlike
 ```
 
-## Chapter 4: Graphs
+</details>
 
-### Undirected Graphs
+</details>
+
+<details>
+<summary><h2>Chapter 4: Graphs</h2></summary>
+
+<details>
+<summary><h3>Undirected Graphs</h3></summary>
 
 #### Graph
 
@@ -1070,7 +1111,10 @@ Girth: 4
 Contains 'Bacon, Kevin'? true
 ```
 
-### Directed Graphs
+</details>
+
+<details>
+<summary><h3>Directed Graphs</h3></summary>
 
 #### Digraph
 
@@ -1120,5 +1164,9 @@ Computational Biology
 Determining connectivity in an undirected graph is as simple as determining whether there is a path from any vertex to any other vertex. But the analogue in directed graphs is harder to determine: a digraph is _strongly_ connected if, for all vertex pairs v and w, there is both a path from v to w _and_ from w to v. The nature of digraphs means that the path in one direction need not be the same as the path in the other direction. But how can this graph property be checked in a reasonable amount of time?
 
 The Kosaraju algorithm solves this in three steps: (1) get the reverse of the digraph (reversing all edges), (2) get the reverse postorder of the inverted digraph, and finally (3) perform DFS on each vertex as would be done in an undirected graph, but _searching vertices in order of the reverse postorder of the inverted graph previously derived_. It's quite complicated to prove its correctness, and I can't say I understand it, but it's amazing that it works!
+
+</details>
+
+</details>
 
 </details>
