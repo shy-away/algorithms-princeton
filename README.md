@@ -2,6 +2,8 @@
 
 This repository contains my work for the Algorithms course provided by Princeton. ([Booksite](https://algs4.cs.princeton.edu/home/))
 
+All of the algorithm implementations in this repo are my own work. Where I use Princeton-provided test clients and/or visualizers, I note it explicitly.
+
 It is assumed anyone exploring this repository is using Linux and has a compatible JDK installed. This repository was developed using OpenJDK 21.0.10 on Ubuntu 24.04.4 LTS running in WSL 2.
 
 <details>
@@ -39,7 +41,7 @@ The demo script will compile and execute the given Java file, and pass along any
 
 ![Deques and randomized queues.](docs/deques_randomized_queues.png)
 
-This project is about working with arrays and linked lists to create and use abstract data structures. My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/queues/specification.php) for more details.
+This project is about working with arrays and linked lists to create and use abstract data structures. These implementations are my own solutions to the course assignment. My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/queues/specification.php) for more details.
 
 ### [Deque.java](queues/Deque.java)
 
@@ -51,7 +53,7 @@ For constant time complexity in all operations (including the iterator's constru
 
 A randomized queue is a collection of items that can be randomly retrieved (or simply sampled, without removing them from the queue). Additionally, all iterators of a randomized queue are _distinct_; if two iterators are created from the same randomized queue, they will iterate over the items in _independently_ random orders.
 
-To accomplish this, `RandomizedQueue.java` uses a dynamically resizing array as its underlying data structure. Resizing operations do consume extra time and memory, but the _amortized_ time complexity is still O(1) for all operations besides the iterator constructor, which is O(n).
+To accomplish this, `RandomizedQueue.java` uses a dynamically resizing array as its underlying data structure. Resizing operations do consume extra time and memory, but the _amortized_ time complexity is still $O(1)$ for all operations besides the iterator constructor, which is $O(n)$.
 
 ### [Permutation.java](queues/Permutation.java)
 
@@ -178,7 +180,7 @@ So, using these percolation simulations, the threshold of sites that need to be 
 
 Given a set of points, there may be subsets of four or more points that lie along the same line. What is the _fastest_ way to find all such lines?
 
-My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/collinear/specification.php) for more details.
+I implemented the core data structures and algorithms for this assignment; sample input and the visualization client are course-provided. My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/collinear/specification.php) for more details.
 
 ### [Point.java](collinear_points/Point.java)
 
@@ -295,7 +297,7 @@ The core of this project is the [A\* algorithm](https://en.wikipedia.org/wiki/A*
 
 Internally, `Solver.java` uses a private class `SearchNode implements Comparable<SearchNode>` to wrap individual Boards and link them together into an in-memory tree. SearchNodes are compared based on their _priority_, which is the Manhattan distance plus the number of moves a SearchNode has taken from the initial Board given to the `Solver`.
 
-The core A\* loop finds the bottom node of the search tree with the highest (i.e. numerically least) priority. It then adds that Board's `neighbors()` to the search tree (as new SearchNodes). To efficiently accomplish this task (and to relate this problem to sorting), the A\* loop maintains a minimum priority queue of all the bottom nodes to efficiently select the highest-priority node in amortized $O(\lg n)$ time for each operation. The exact class used is Princeton's `MinPQ`, which internally uses a resizing array in heap order.
+The core A\* loop finds the bottom node of the search tree with the lowest priority. It then adds that Board's `neighbors()` to the search tree (as new SearchNodes). To efficiently accomplish this task (and to relate this problem to sorting), the A\* loop maintains a minimum priority queue of all the bottom nodes to efficiently select the highest-priority node in amortized $O(\lg n)$ time for each operation. The exact class used is Princeton's `MinPQ`, which internally uses a resizing array in heap order.
 
 To determine whether the given input is solvable, the A\* algorithm is actually run for both the input Board _and its `twin()`_, in lockstep (updating the input and twin SearchNode trees in the same loop). If the twin Board has a solution, the original input Board must be unsolvable.
 
@@ -496,8 +498,8 @@ And with that, the hard work is done and dusted! Everything else is easy.
 
 - `nouns()` returns the `HashSet` of nouns.
 - `isNoun()` just looks up the given string in the `HashSet` of nouns.
-- `distance()` fetches the synset ID groups for each noun from `nounSynsetIDsST`, uses an `SAP` to get the distance between the two groups of synsets, and returns the found distance.
-- `sap()` likewise fetches the synset ID groups for each noun from `nounSynsetIDsST` and uses an `SAP`, but it instead grabs the _ancestor vertex_, and uses the `synsetIdST` to translate the vertex name into a synset.
+- `distance()` fetches the synset ID groups for each noun from `nounSynsetIdsST`, uses an `SAP` to get the distance between the two groups of synsets, and returns the found distance.
+- `sap()` likewise fetches the synset ID groups for each noun from `nounSynsetIdsST` and uses an `SAP`, but it instead grabs the _ancestor vertex_, and uses the `synsetIdST` to translate the vertex name into a synset.
 
 I've created `TestWordNet.java` to play with these word associations. Give it a try!
 
