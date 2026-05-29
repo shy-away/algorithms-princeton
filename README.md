@@ -4,7 +4,16 @@ This repository contains my work for the Algorithms course provided by Princeton
 
 It is assumed anyone exploring this repository is using Linux and has a compatible JDK installed. This repository was developed using OpenJDK 21.0.10 on Ubuntu 24.04.4 LTS running in WSL 2.
 
-# Structure
+<details>
+<summary><h1>Structure</h1></summary>
+
+## General
+
+I've made this monorepo as simple as possible to navigate.
+
+Every **major project** is in a top-level directory. For example, my Percolation project is in `percolation/`.
+
+Every **chapter exercise/problem** is within a chapter folder and (for most chapters) subchapter folder. For example, all of my work for the Balanced Search Trees subchapter is in the directory `ch3_searching/balanced_search_trees`. The exception is Sorting (`ch2_sorting/`), for which there are no subfolders.
 
 ## Demo script
 
@@ -20,9 +29,13 @@ The demo script will compile and execute the given Java file, and pass along any
 
 `lib/` contains Princeton's provided `algs4.jar` archive, as well as a `docgen.sh` script to (1) extract the files in `algs4.jar` to a new directory `lib/algs4_decompressed/`, and (2) generate JavaDocs for those decompressed files, also in a new directory `lib/docs/`. Logs are redirected from stdout and stderr into a new `log.txt`.
 
-# Major Projects
+</details>
 
-## Queues
+<details>
+<summary><h1>Major Projects</h1></summary>
+
+<details>
+<summary><h2>Queues</h2></summary>
 
 ![Deques and randomized queues.](docs/deques_randomized_queues.png)
 
@@ -81,7 +94,10 @@ Exception in thread "main" java.util.NoSuchElementException
         at Permutation.main(Permutation.java:16)
 ```
 
-## Percolation
+</details>
+
+<details>
+<summary><h2>Percolation</h2></summary>
 
 ![Percolation.](docs/percolation.png)
 
@@ -153,7 +169,10 @@ stddev                  = 0.009801390413630305
 
 So, using these percolation simulations, the threshold of sites that need to be open in order for the grid to percolate is, on average, just above 59%. (At least in 2D!)
 
-## Collinear Points
+</details>
+
+<details>
+<summary><h2>Collinear Points</h2></summary>
 
 ![Ten thousand points distributed throughout a square, with lines drawn where 4 or more points lie along the same line.](docs/collinear_10k.png)
 
@@ -215,7 +234,10 @@ $ ./demo.sh collinear_points/CollinearPointsClient.java collinear_points/input10
 
 ...and so on. There are many other test files to try.
 
-## 8-Puzzle
+</details>
+
+<details>
+<summary><h2>8-Puzzle</h2></summary>
 
 ![Eight puzzle.](docs/8puzzle.png)
 
@@ -336,7 +358,10 @@ Minimum number of moves = 35
 
 ...the solution is reached!
 
-## Kd-Trees
+</details>
+
+<details>
+<summary><h2>Kd-Trees</h2></summary>
 
 ![Kd-Trees.](docs/kdtree.png)
 
@@ -379,12 +404,15 @@ Princeton offers a few programs for generating input points and visualizing `ran
 $ ./demo.sh kdtree/RangeSearchVisualizer.java kdtree/input500.txt
 ```
 
-## WordNet
+</details>
+
+<details>
+<summary><h2>WordNet</h2></summary>
 
 ![Word net.](docs/logo.png)
 
 ```
-$ ./demo.sh wordnet/TestWordNet.java 
+$ ./demo.sh wordnet/TestWordNet.java
 WordNet created. Enter two words to see WordNet statistics. Ctrl+D to exit.
 carrot stick
 length: 6, ancestor: 'food solid_food'
@@ -474,7 +502,7 @@ And with that, the hard work is done and dusted! Everything else is easy.
 I've created `TestWordNet.java` to play with these word associations. Give it a try!
 
 ```
-$ ./demo.sh wordnet/TestWordNet.java 
+$ ./demo.sh wordnet/TestWordNet.java
 WordNet created. Enter two words to see WordNet statistics. Ctrl+D to exit.
 worm bird
 length: 5, ancestor: 'animal animate_being beast brute creature fauna'
@@ -498,7 +526,12 @@ $ ./demo.sh wordnet/Outcast.java synsets.txt hypernyms.txt outcast5.txt
 outcast5.txt: table
 ```
 
-# Chapter Exercises & Problems
+</details>
+
+</details>
+
+<details>
+<summary><h1>Chapter Exercises & Problems</h1></summary>
 
 These are smaller projects from each chapter that I decided to do, for one reason or another. The `demo.sh` can run them all the same.
 
@@ -1087,3 +1120,5 @@ Computational Biology
 Determining connectivity in an undirected graph is as simple as determining whether there is a path from any vertex to any other vertex. But the analogue in directed graphs is harder to determine: a digraph is _strongly_ connected if, for all vertex pairs v and w, there is both a path from v to w _and_ from w to v. The nature of digraphs means that the path in one direction need not be the same as the path in the other direction. But how can this graph property be checked in a reasonable amount of time?
 
 The Kosaraju algorithm solves this in three steps: (1) get the reverse of the digraph (reversing all edges), (2) get the reverse postorder of the inverted digraph, and finally (3) perform DFS on each vertex as would be done in an undirected graph, but _searching vertices in order of the reverse postorder of the inverted graph previously derived_. It's quite complicated to prove its correctness, and I can't say I understand it, but it's amazing that it works!
+
+</details>
