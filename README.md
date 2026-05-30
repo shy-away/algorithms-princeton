@@ -2,9 +2,20 @@
 
 This repository contains my work for the Algorithms course provided by Princeton. ([Booksite](https://algs4.cs.princeton.edu/home/))
 
+All of the algorithm implementations in this repo are my own work. Where I use Princeton-provided test clients and/or visualizers, I note it explicitly.
+
 It is assumed anyone exploring this repository is using Linux and has a compatible JDK installed. This repository was developed using OpenJDK 21.0.10 on Ubuntu 24.04.4 LTS running in WSL 2.
 
-# Structure
+<details>
+<summary><h1>Structure</h1></summary>
+
+## General
+
+I've made this monorepo as simple as possible to navigate.
+
+Every **major project** is in a top-level directory. For example, my Percolation project is in `percolation/`.
+
+Every **chapter exercise/problem** is within a chapter folder and (for most chapters) subchapter folder. For example, all of my work for the Balanced Search Trees subchapter is in the directory `ch3_searching/balanced_search_trees`. The exception is Sorting (`ch2_sorting/`), for which there are no subfolders.
 
 ## Demo script
 
@@ -20,13 +31,17 @@ The demo script will compile and execute the given Java file, and pass along any
 
 `lib/` contains Princeton's provided `algs4.jar` archive, as well as a `docgen.sh` script to (1) extract the files in `algs4.jar` to a new directory `lib/algs4_decompressed/`, and (2) generate JavaDocs for those decompressed files, also in a new directory `lib/docs/`. Logs are redirected from stdout and stderr into a new `log.txt`.
 
-# Major Projects
+</details>
 
-## Queues
+<details>
+<summary><h1>Major Projects</h1></summary>
+
+<details>
+<summary><h2>Queues</h2></summary>
 
 ![Deques and randomized queues.](docs/deques_randomized_queues.png)
 
-This project is about working with arrays and linked lists to create and use abstract data structures. My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/queues/specification.php) for more details.
+This project is about working with arrays and linked lists to create and use abstract data structures. These implementations are my own solutions to the course assignment. My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/queues/specification.php) for more details.
 
 ### [Deque.java](queues/Deque.java)
 
@@ -38,7 +53,7 @@ For constant time complexity in all operations (including the iterator's constru
 
 A randomized queue is a collection of items that can be randomly retrieved (or simply sampled, without removing them from the queue). Additionally, all iterators of a randomized queue are _distinct_; if two iterators are created from the same randomized queue, they will iterate over the items in _independently_ random orders.
 
-To accomplish this, `RandomizedQueue.java` uses a dynamically resizing array as its underlying data structure. Resizing operations do consume extra time and memory, but the _amortized_ time complexity is still O(1) for all operations besides the iterator constructor, which is O(n).
+To accomplish this, `RandomizedQueue.java` uses a dynamically resizing array as its underlying data structure. Resizing operations do consume extra time and memory, but the _amortized_ time complexity is still $O(1)$ for all operations besides the iterator constructor, which is $O(n)$.
 
 ### [Permutation.java](queues/Permutation.java)
 
@@ -81,7 +96,10 @@ Exception in thread "main" java.util.NoSuchElementException
         at Permutation.main(Permutation.java:16)
 ```
 
-## Percolation
+</details>
+
+<details>
+<summary><h2>Percolation</h2></summary>
 
 ![Percolation.](docs/percolation.png)
 
@@ -124,7 +142,7 @@ Instead of directly checking the Union-find structure to determine percolation, 
 
 The logic all resides in `open()`. When a site is opened at the bottom of the grid, the tree containing that site (root node accessible via `find()` in the Union-find object) is flagged as connected to the bottom. Then, whenever another tree is merged with any such flagged tree (as may happen in other `open()` calls), the resulting tree necessarily also touches the bottom, so its flag is also updated. Lastly, after all those operations, if the current node being opened is both (1) connected to the bottom and (2) connected to the top, then the system must percolate. No bottom virtual node required!
 
-Using the demo script directly on `Percolation.java` just runs its unit tests. Insetad, to visualize the grid, use Princeton's supplied `PercolationVisualizer.java` with an input file.
+Using the demo script directly on `Percolation.java` just runs its unit tests. Instead, to visualize the grid, use Princeton's supplied `PercolationVisualizer.java` with an input file.
 
 ![A percolation visualization that looks like an eagle's head.](docs/percolation_eagle25.png)
 
@@ -153,13 +171,16 @@ stddev                  = 0.009801390413630305
 
 So, using these percolation simulations, the threshold of sites that need to be open in order for the grid to percolate is, on average, just above 59%. (At least in 2D!)
 
-## Collinear Points
+</details>
+
+<details>
+<summary><h2>Collinear Points</h2></summary>
 
 ![Ten thousand points distributed throughout a square, with lines drawn where 4 or more points lie along the same line.](docs/collinear_10k.png)
 
 Given a set of points, there may be subsets of four or more points that lie along the same line. What is the _fastest_ way to find all such lines?
 
-My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/collinear/specification.php) for more details.
+I implemented the core data structures and algorithms for this assignment; sample input and the visualization client are course-provided. My code fulfills 100% of the testing requirements. See the [specification](https://coursera.cs.princeton.edu/algs4/assignments/collinear/specification.php) for more details.
 
 ### [Point.java](collinear_points/Point.java)
 
@@ -171,7 +192,7 @@ My code fulfills 100% of the testing requirements. See the [specification](https
 
 ### [BruteCollinearPoints.java](collinear_points/BruteCollinearPoints.java)
 
-`BruteCollinearPoints.java` finds all sets of four or more collinear points using a brute-force searching algorithm. It examines all possible 4-point tuples in the input and determines whether they are collinear.
+`BruteCollinearPoints.java` finds all sets of four collinear points using a brute-force searching algorithm. It examines all possible 4-point tuples in the input and determines whether they are collinear.
 
 - `BruteCollinearPoints(Point[] points)` runs the searching algorithm and stores all found segments.
 - `segments()` returns (a copy of) all found segments.
@@ -215,7 +236,10 @@ $ ./demo.sh collinear_points/CollinearPointsClient.java collinear_points/input10
 
 ...and so on. There are many other test files to try.
 
-## 8-Puzzle
+</details>
+
+<details>
+<summary><h2>8-Puzzle</h2></summary>
 
 ![Eight puzzle.](docs/8puzzle.png)
 
@@ -273,7 +297,7 @@ The core of this project is the [A\* algorithm](https://en.wikipedia.org/wiki/A*
 
 Internally, `Solver.java` uses a private class `SearchNode implements Comparable<SearchNode>` to wrap individual Boards and link them together into an in-memory tree. SearchNodes are compared based on their _priority_, which is the Manhattan distance plus the number of moves a SearchNode has taken from the initial Board given to the `Solver`.
 
-The core A\* loop finds the bottom node of the search tree with the highest (i.e. numerically least) priority. It then adds that Board's `neighbors()` to the search tree (as new SearchNodes). To efficiently accomplish this task (and to relate this problem to sorting), the A\* loop maintains a minimum priority queue of all the bottom nodes to efficiently select the highest-priority node in amortized $O(\lg n)$ time for each operation. The exact class used is Princeton's `MinPQ`, which internally uses a resizing array in heap order.
+The core A\* loop finds the bottom node of the search tree with the lowest priority. It then adds that Board's `neighbors()` to the search tree (as new SearchNodes). To efficiently accomplish this task (and to relate this problem to sorting), the A\* loop maintains a minimum priority queue of all the bottom nodes to efficiently select the highest-priority node in amortized $O(\lg n)$ time for each operation. The exact class used is Princeton's `MinPQ`, which internally uses a resizing array in heap order.
 
 To determine whether the given input is solvable, the A\* algorithm is actually run for both the input Board _and its `twin()`_, in lockstep (updating the input and twin SearchNode trees in the same loop). If the twin Board has a solution, the original input Board must be unsolvable.
 
@@ -336,7 +360,10 @@ Minimum number of moves = 35
 
 ...the solution is reached!
 
-## Kd-Trees
+</details>
+
+<details>
+<summary><h2>Kd-Trees</h2></summary>
 
 ![Kd-Trees.](docs/kdtree.png)
 
@@ -379,12 +406,15 @@ Princeton offers a few programs for generating input points and visualizing `ran
 $ ./demo.sh kdtree/RangeSearchVisualizer.java kdtree/input500.txt
 ```
 
-## WordNet
+</details>
 
-![Word net.](docs/logo.png)
+<details>
+<summary><h2>WordNet</h2></summary>
+
+![Word net.](docs/wordnet.png)
 
 ```
-$ ./demo.sh wordnet/TestWordNet.java 
+$ ./demo.sh wordnet/TestWordNet.java
 WordNet created. Enter two words to see WordNet statistics. Ctrl+D to exit.
 carrot stick
 length: 6, ancestor: 'food solid_food'
@@ -468,13 +498,13 @@ And with that, the hard work is done and dusted! Everything else is easy.
 
 - `nouns()` returns the `HashSet` of nouns.
 - `isNoun()` just looks up the given string in the `HashSet` of nouns.
-- `distance()` fetches the synset ID groups for each noun from `nounSynsetIDsST`, uses an `SAP` to get the distance between the two groups of synsets, and returns the found distance.
-- `sap()` likewise fetches the synset ID groups for each noun from `nounSynsetIDsST` and uses an `SAP`, but it instead grabs the _ancestor vertex_, and uses the `synsetIdST` to translate the vertex name into a synset.
+- `distance()` fetches the synset ID groups for each noun from `nounSynsetIdsST`, uses an `SAP` to get the distance between the two groups of synsets, and returns the found distance.
+- `sap()` likewise fetches the synset ID groups for each noun from `nounSynsetIdsST` and uses an `SAP`, but it instead grabs the _ancestor vertex_, and uses the `synsetIdST` to translate the vertex name into a synset.
 
 I've created `TestWordNet.java` to play with these word associations. Give it a try!
 
 ```
-$ ./demo.sh wordnet/TestWordNet.java 
+$ ./demo.sh wordnet/TestWordNet.java
 WordNet created. Enter two words to see WordNet statistics. Ctrl+D to exit.
 worm bird
 length: 5, ancestor: 'animal animate_being beast brute creature fauna'
@@ -498,13 +528,20 @@ $ ./demo.sh wordnet/Outcast.java synsets.txt hypernyms.txt outcast5.txt
 outcast5.txt: table
 ```
 
-# Chapter Exercises & Problems
+</details>
+
+</details>
+
+<details>
+<summary><h1>Chapter Exercises & Problems</h1></summary>
 
 These are smaller projects from each chapter that I decided to do, for one reason or another. The `demo.sh` can run them all the same.
 
-## Chapter 1: Fundamentals
+<details>
+<summary><h2>Chapter 1: Fundamentals</h2></summary>
 
-### Basic Programming Model
+<details>
+<summary><h3>Basic Programming Model</h3></summary>
 
 #### BinarySearch
 
@@ -533,7 +570,10 @@ Some values to try:
 | 30 | 0.2 |
 | 200 | 0.01 |
 
-### Data Abstraction
+</details>
+
+<details>
+<summary><h3>Data Abstraction</h3></summary>
 
 #### Interval2DClient
 
@@ -562,7 +602,10 @@ As a bonus, my `Rational` ADT also controls for integer overflow and underflow.
 
 The `main` method of [`Rational.java`](./ch1_fundamentals/data_abstraction/Rational.java) includes assertions to test functionality; see that method for more details. (Using the demo script on `Rational.java` will produce no output, since all assertions pass.)
 
-### Bags, Queues, and Stacks
+</details>
+
+<details>
+<summary><h3>Bags, Queues, and Stacks</h3></summary>
 
 #### ResizingArrayStack, Stack, Queue, Bag
 
@@ -588,7 +631,10 @@ $ ./demo.sh ch1_fundamentals/bags_queues_stacks/Parentheses.java "[{}({}[])]"
 true
 ```
 
-### Analysis of Algorithms
+</details>
+
+<details>
+<summary><h3>Analysis of Algorithms</h3></summary>
 
 #### DoublingTest, ThreeSum
 
@@ -681,7 +727,10 @@ The problems are about dropping eggs from different floors of a building to dete
 
 - The purple lines are $O(\sqrt{F})$, also when given **_only two eggs._** Instead of using chunks of size $\sqrt{N}$, use chunks between _squares_! Starting at the bottom floor, move to the next square floor (0 &#8594; 1 &#8594; 4 &#8594; 9 etc.) until the first egg cracks. Then, move back to the previous square floor and search one floor at a time (ascending). As with the green lines, the ligher purple line represents the average number of throws per building size, and the darker purple points represent the average number of throws _depending on F_.
 
-### Case Study: Union-Find
+</details>
+
+<details>
+<summary><h3>Case Study: Union-Find</h3></summary>
 
 #### UF, QuickFindUF, QuickUnionUF, WeightedQuickUnionUF
 
@@ -759,9 +808,14 @@ Internally, `RandomGrid.java` has a static method `generate()` that actually doe
 
 `GridAnimation.java` takes a grid size N from stdin and draws random connections on an N-by-N grid, using a Union-find structure to check connectivity. Visually, this ensures the line never loops! It uses `generate()` from `RandomGrid.java` to create all of the connections.
 
-## Chapter 2: Sorting
+</details>
 
-Instead of nesting programs in subdirectories for each chapter section, I'll organize this section by program. I did this because it makes more sense to put all the sorting algorithms in one Java program, since they all use the same `exch()` and `less()` methods, and will all be tested in similar ways.
+</details>
+
+<details>
+<summary><h2>Chapter 2: Sorting</h2></summary>
+
+Instead of nesting programs in subdirectories for each chapter section, I've organized this section by program. I did this because it makes more sense to put all the sorting algorithms in one Java program, since they all use the same `exch()` and `less()` methods, and will all be tested in similar ways.
 
 ### Sorter
 
@@ -809,9 +863,13 @@ For 200 random Doubles
 
 `MaxPQ.java` is an implementation of a maximum priority queue, which keeps an array in heap order to efficiently provide the maximum element in the queue. It's mostly retyped from the book, with the optimization that it uses a resizing array.
 
-## Chapter 3: Searching
+</details>
 
-### Symbol Tables
+<details>
+<summary><h2>Chapter 3: Searching</h2></summary>
+
+<details>
+<summary><h3>Symbol Tables</h3></summary>
 
 #### BinarySearchST
 
@@ -855,13 +913,19 @@ distinct = 79900
 words    = 493299
 ```
 
-### Binary Search Trees
+</details>
+
+<details>
+<summary><h3>Binary Search Trees</h3></summary>
 
 #### BST
 
 `BST.java` is mostly retyped from the book, to solidify my understanding of recursively traversing a binary tree. I simply wrote some unit tests to make sure my retyping didn't introduce any bugs.
 
-### Balanced Search Trees
+</details>
+
+<details>
+<summary><h3>Balanced Search Trees</h3></summary>
 
 #### RedBlackBST
 
@@ -890,7 +954,10 @@ Since speed is a priority for some of these methods (and because I wanted to str
 
 ![A still picture of an LLRB with 100 nodes, with statistics displayed in the top left corner.](docs/llrb_100.png)
 
-### Hash Tables
+</details>
+
+<details>
+<summary><h3>Hash Tables</h3></summary>
 
 #### SeparateChainingHashST
 
@@ -900,7 +967,10 @@ Since speed is a priority for some of these methods (and because I wanted to str
 
 `LinearProbingHashST.java` is almost completely retyped from the book, with the exception of using an `int[] primes` to optimize resizing (which was copied to `SeparateChainingHashST.java`).
 
-### Searching Applications
+</details>
+
+<details>
+<summary><h3>Searching Applications</h3></summary>
 
 #### LookupIndex
 
@@ -923,9 +993,15 @@ MARTIN
   Warlike
 ```
 
-## Chapter 4: Graphs
+</details>
 
-### Undirected Graphs
+</details>
+
+<details>
+<summary><h2>Chapter 4: Graphs</h2></summary>
+
+<details>
+<summary><h3>Undirected Graphs</h3></summary>
 
 #### Graph
 
@@ -1037,7 +1113,10 @@ Girth: 4
 Contains 'Bacon, Kevin'? true
 ```
 
-### Directed Graphs
+</details>
+
+<details>
+<summary><h3>Directed Graphs</h3></summary>
 
 #### Digraph
 
@@ -1087,3 +1166,9 @@ Computational Biology
 Determining connectivity in an undirected graph is as simple as determining whether there is a path from any vertex to any other vertex. But the analogue in directed graphs is harder to determine: a digraph is _strongly_ connected if, for all vertex pairs v and w, there is both a path from v to w _and_ from w to v. The nature of digraphs means that the path in one direction need not be the same as the path in the other direction. But how can this graph property be checked in a reasonable amount of time?
 
 The Kosaraju algorithm solves this in three steps: (1) get the reverse of the digraph (reversing all edges), (2) get the reverse postorder of the inverted digraph, and finally (3) perform DFS on each vertex as would be done in an undirected graph, but _searching vertices in order of the reverse postorder of the inverted graph previously derived_. It's quite complicated to prove its correctness, and I can't say I understand it, but it's amazing that it works!
+
+</details>
+
+</details>
+
+</details>
